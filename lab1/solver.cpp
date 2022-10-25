@@ -8,32 +8,62 @@
 
 using namespace std;
 
-string parseInitialState(int withoutZero, int indexOfZero)
+string stringifyPath(vector<string> path)
 {
-    string res = to_string(withoutZero);
-    return res.insert(indexOfZero, "0");
+    // don't touch this code please ;_;
+    int indexZero, oldR, oldC, newR, newC;
+    string newZero, direction, currentZero, stringPath = "";
+    for (unsigned long long i = 0; i < path.size() - 1; i++)
+    {
+        indexZero = path[i].find('0');
+        oldR = indexZero / 3;
+        oldC = indexZero % 3;
+        currentZero = "slot" + to_string(indexZero);
+
+        indexZero = path[i+1].find('0');
+        newR = indexZero / 3;
+        newC = indexZero % 3;
+        newZero = "slot" + to_string(indexZero);
+     
+        if(oldR > newR) 
+            direction = "down";
+        else if(oldR < newR) 
+            direction = "up";
+        else if(oldC > newC) 
+            direction = "right";
+        else if(oldC < newC) 
+            direction = "left";
+
+        stringPath += newZero + "-" + direction + "-" + currentZero + ",";
+    }
+    // stringPath += ";";
+    return stringPath;
 }
 
-vector<string> calcRowColumnValues(string state) {
-    vector<string> res;
-    return res;
+string parseInitialState(int withoutZero, int indexOfZero)
+{
+    // don't touch this code please ;_;
+    string res = to_string(withoutZero);
+    return res.insert(indexOfZero, "0");
 }
 
 // A utility function to count inversions in given array 'arr[]'
 int getInvCount(string state)
 {
+    // don't touch this code please ;_;
     int inv_count = 0;
     for (int i = 0; i < 9 - 1; i++)
         for (int j = i + 1; j < 9; j++)
             if ((state[j] - 48) && (state[i] - 48) && ((state[i] - 48) > (state[j] - 48)))
                 inv_count++;
-            
+
     return inv_count;
 }
 
 // This function returns true if given 8 puzzle is solvable.
 bool isSolvable(string state)
 {
+    // don't touch this code please ;_;
     // Count inversions in given 8 puzzle
     int invCount = getInvCount(state);
 
@@ -43,6 +73,7 @@ bool isSolvable(string state)
 
 vector<string> findNeighbors(string state)
 {
+    // don't touch this code please ;_;
     vector<string> neighbors;
 
     int indexZero = state.find('0');
@@ -97,26 +128,30 @@ vector<string> findNeighbors(string state)
     return neighbors;
 }
 
-
-
-string solveBFS(string initialState)
+vector<string> solveBFS(string initialState)
 {
+    vector<string> finalPath;
     // code here
-    return "BFS";
+
+    return finalPath;
 }
 
-string solveDFS(string initialState)
+vector<string> solveDFS(string initialState)
 {
+    vector<string> finalPath;
     // code here
-    return "DFS";
+
+    return finalPath;
 }
 
-string solveAStar(string initialState, int type)
+vector<string> solveAStar(string initialState, int type)
 {
+    vector<string> finalPath;
     // code here
     // type = 0 ==> manhattan
     // type = 1 ==> euclidean
-    return type ? "Euclidean" : "Manhattan";
+
+    return finalPath;
 }
 
 extern "C"
@@ -124,9 +159,10 @@ extern "C"
     EMSCRIPTEN_KEEPALIVE
     void solve(int withoutZero, int indexOfZero, int algorithmType)
     {
-
+        // don't touch this code please ;_;
         string initialState = parseInitialState(withoutZero, indexOfZero);
         string result = "";
+        vector<string> path;
         bool isInitialStateSolvable = isSolvable(initialState);
 
         if (isInitialStateSolvable)
@@ -134,27 +170,35 @@ extern "C"
             switch (algorithmType)
             {
             case 1:
-                result = solveBFS(initialState);
+                path = solveBFS(initialState);
                 break;
             case 2:
-                result = solveDFS(initialState);
+                path = solveDFS(initialState);
                 break;
             case 3:
-                result = solveAStar(initialState, 0);
+                path = solveAStar(initialState, 0);
                 break;
             case 4:
-                result = solveAStar(initialState, 1);
+                path = solveAStar(initialState, 1);
                 break;
             default:
-                result = solveBFS(initialState);
+                path = solveAStar(initialState, 1);
                 break;
             }
+            // The following three lines are for testing only. 
+            // Once you have a ready algorithm that return vector of string in path, delete them.
+            path.push_back("125340678");
+            path.push_back("120345678");
+            path.push_back("102345678");
+            path.push_back("012345678");
+
+            
+            result = stringifyPath(path);
         }
         else
         {
             result = "unsolvable";
         }
-
         string script = "SolutionPanel('" + result + "')";
         const char *Schar = script.c_str();
         emscripten_run_script(Schar);

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="last.js"></script>
+</head>
+
+<body>
+    <label for="">Initial state: </label>
+    <input type="text" id="t1" />
+    <br>
+    <label for="">Algorithms type:</label>
+    <select class="form-select" id="t2">
+        <option selected>Select algorithm</option>
+        <option value="1">BFS</option>
+        <option value="2">DFS</option>
+        <option value="3">A* manhattan</option>
+        <option value="4">A* euclidean</option>
+    </select>
+
+
+    <input type="button" value="callSolve" onclick="callSolve()" />
+    <script src="js/script.js"></script>
+</body>
+
+</html>

@@ -146,7 +146,6 @@ function generateAnimations() {
     ++count;
     let timeInt = setInterval(() => {
         if(count >= len) {
-
             clearInterval(timeInt);
         }
         animate(movementsArr[count].newZero, movementsArr[count].direction, movementsArr[count].currentZero);
@@ -154,6 +153,19 @@ function generateAnimations() {
     }, 500)
     movementsArr.forEach(async (ele) => {
     })
+}
+function displayInitialState(state) {
+    let tmp;
+    for (let i = 0; i < state.length; i++) {
+        if (state[i] == "0") {
+            document.querySelector(`#slot${i}`).innerHTML = "";
+        }
+        else {
+            tmp = part1 + state[i] + part2;
+            document.querySelector(`#slot${i}`).innerHTML = `${tmp}`;
+        }
+        
+    }
 }
 // end the animation controlling functions
 // 
@@ -166,3 +178,10 @@ document.getElementById("solve").addEventListener("click", () => {
     callSolve();
     console.timeEnd("c++");
 })
+// document.getElementById("initialState").addEventListener("keyup", () => {
+//     let state = document.getElementById("initialState").value;
+//     if(isValidIntialState(state))
+//     {
+//         displayInitialState(state);
+//     }
+// })

@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>8 Puzzle Solver</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <script src="last.js"></script>
+    <script src="solver.js"></script>
 </head>
 
 <body class="">
@@ -31,16 +31,21 @@
             <section class="mt-4 w-100 bg- d-flex flex-column">
                 <div class="form-group mb-4">
                     <label for="initial">Initial state: </label>
-                    <input type="text" name="initial" id="t1" class="form-control" placeholder="ex: 012354687" />
+                    <input type="text" name="initial" id="initialState" class="form-control" placeholder="ex:035124687 (start from top left slot)" />
+                    <div class="d-none mt-1 alert alert-danger p-2">Invalid syntax: initial state must be eight characters 0-8 each appearing once.</div>
+                    <div class="d-none mt-1 alert alert-danger p-2">This state is unsolvable.</div>
                 </div>
-                <select class="form-select mb-4" id="t2">
-                    <option selected>Select algorithm</option>
-                    <option value="1">BFS</option>
-                    <option value="2">DFS</option>
-                    <option value="3">A* Manhattan</option>
-                    <option value="3">A* Euclidean</option>
-                </select>
-                <button id="tst" class="btn w-50 mx-auto">Solve</button>
+                <div class="form-group mb-4">
+                    <select class="form-select" id="algorithmType">
+                        <option selected value="0">Select algorithm</option>
+                        <option value="1">BFS</option>
+                        <option value="2">DFS</option>
+                        <option value="3">A* Manhattan</option>
+                        <option value="3">A* Euclidean</option>
+                    </select>
+                    <div class="d-none mt-1 alert alert-danger p-2">Must select an algorithm.</div>
+                </div>
+                <button id="solve" class="btn w-50 mx-auto">Solve</button>
             </section>
         </section>
     </div>
@@ -49,7 +54,6 @@
     <script src="./js/jquery-3.6.1.min.js"></script>
     <script src="./js/bootstrap.bundle.min.js"></script>
     <script src="./js/script.js"></script>
-    <script src="animation.js"></script>
 </body>
 
 </html>

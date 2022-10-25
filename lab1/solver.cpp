@@ -10,6 +10,7 @@ using namespace std;
 
 string stringifyPath(vector<string> path)
 {
+    // don't touch this code please ;_;
     int indexZero, oldR, oldC, newR, newC;
     string newZero, direction, currentZero, stringPath = "";
     for (unsigned long long i = 0; i < path.size() - 1; i++)
@@ -41,19 +42,15 @@ string stringifyPath(vector<string> path)
 
 string parseInitialState(int withoutZero, int indexOfZero)
 {
+    // don't touch this code please ;_;
     string res = to_string(withoutZero);
     return res.insert(indexOfZero, "0");
-}
-
-vector<string> calcRowColumnValues(string state)
-{
-    vector<string> res;
-    return res;
 }
 
 // A utility function to count inversions in given array 'arr[]'
 int getInvCount(string state)
 {
+    // don't touch this code please ;_;
     int inv_count = 0;
     for (int i = 0; i < 9 - 1; i++)
         for (int j = i + 1; j < 9; j++)
@@ -66,6 +63,7 @@ int getInvCount(string state)
 // This function returns true if given 8 puzzle is solvable.
 bool isSolvable(string state)
 {
+    // don't touch this code please ;_;
     // Count inversions in given 8 puzzle
     int invCount = getInvCount(state);
 
@@ -75,6 +73,7 @@ bool isSolvable(string state)
 
 vector<string> findNeighbors(string state)
 {
+    // don't touch this code please ;_;
     vector<string> neighbors;
 
     int indexZero = state.find('0');
@@ -160,7 +159,7 @@ extern "C"
     EMSCRIPTEN_KEEPALIVE
     void solve(int withoutZero, int indexOfZero, int algorithmType)
     {
-
+        // don't touch this code please ;_;
         string initialState = parseInitialState(withoutZero, indexOfZero);
         string result = "";
         vector<string> path;
@@ -183,17 +182,17 @@ extern "C"
                 path = solveAStar(initialState, 1);
                 break;
             default:
-                path = solveBFS(initialState);
+                path = solveAStar(initialState, 1);
                 break;
             }
-
+            // The following three lines are for testing only. 
+            // Once you have a ready algorithm that return vector of string in path, delete them.
             path.push_back("125340678");
             path.push_back("120345678");
             path.push_back("102345678");
             path.push_back("012345678");
-            // path.push_back("012456783");
-            // path.push_back("102456783");
-            // path.push_back("152406783");
+
+            
             result = stringifyPath(path);
         }
         else

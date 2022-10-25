@@ -4,8 +4,6 @@ body {
     align-items: center;
     background: rgb(0, 138, 139);
     background: linear-gradient(45deg, rgba(0, 138, 139, 1) 0%, rgba(77, 0, 79, 1) 100%);
-    /* background: rgb(0,254,255);
-    background: linear-gradient(90deg, rgba(0,254,255,1) 0%, rgba(236,53,255,1) 100%); */
 }
 
 h1 {
@@ -79,8 +77,6 @@ input,
     border-top: solid 0 !important;
     border-radius: 0 !important;
 }
-
-
 
 @media screen and (max-width:756px) {
     .main {

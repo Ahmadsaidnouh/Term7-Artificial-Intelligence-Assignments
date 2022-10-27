@@ -125,13 +125,13 @@ function move1(current, direction) {
 
     let trans = `transform: translate${a}(${b}${translationValue}px);`;
 
-    document.querySelector(`#${current} .element`).style.cssText = trans;
+    document.querySelector(`#slot${current} .element`).style.cssText = trans;
 }
 function move2(current, old) {
-    let tmp = document.querySelector(`#${current} .element`).innerHTML;
+    let tmp = document.querySelector(`#slot${current} .element`).innerHTML;
     tmp = part1 + tmp + part2;
-    document.querySelector(`#${old}`).innerHTML = `${tmp}`;
-    document.querySelector(`#${current}`).innerHTML = "";
+    document.querySelector(`#slot${old}`).innerHTML = `${tmp}`;
+    document.querySelector(`#slot${current}`).innerHTML = "";
 }
 function animate(current, direction, old) {
     move1(current, direction);

@@ -18,12 +18,14 @@ string stringifyPath(vector<string> path)
         indexZero = path[i].find('0');
         oldR = indexZero / 3;
         oldC = indexZero % 3;
-        currentZero = "slot" + to_string(indexZero);
+        currentZero = to_string(indexZero);
+        // currentZero = "slot" + to_string(indexZero);
 
         indexZero = path[i+1].find('0');
         newR = indexZero / 3;
         newC = indexZero % 3;
-        newZero = "slot" + to_string(indexZero);
+        newZero = to_string(indexZero);
+        // newZero = "slot" + to_string(indexZero);
      
         if(oldR > newR) 
             direction = "down";

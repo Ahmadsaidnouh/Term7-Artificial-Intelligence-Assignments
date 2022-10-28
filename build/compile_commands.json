@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build",
+  "command": "/usr/bin/g++    -g   -std=gnu++17 -o CMakeFiles/Astar.dir/main.cpp.o -c /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/main.cpp",
+  "file": "/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/main.cpp"
+},
+{
+  "directory": "/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build",
+  "command": "/usr/bin/g++    -g   -std=gnu++17 -o CMakeFiles/Astar.dir/utilities.cpp.o -c /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/utilities.cpp",
+  "file": "/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/utilities.cpp"
+},
+{
+  "directory": "/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build",
+  "command": "/usr/bin/g++    -g   -std=gnu++17 -o CMakeFiles/Astar.dir/A_star.cpp.o -c /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/A_star.cpp",
+  "file": "/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/A_star.cpp"
+}
+]

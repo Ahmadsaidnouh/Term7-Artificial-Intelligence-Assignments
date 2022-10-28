@@ -1,0 +1,7 @@
+/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build/CMakeFiles/install/strip.dir
+/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build/CMakeFiles/install/local.dir
+/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build/CMakeFiles/install.dir
+/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build/CMakeFiles/list_install_components.dir
+/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build/CMakeFiles/rebuild_cache.dir
+/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build/CMakeFiles/edit_cache.dir
+/media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/build/CMakeFiles/Astar.dir

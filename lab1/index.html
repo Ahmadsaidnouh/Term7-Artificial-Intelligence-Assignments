@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>8 Puzzle Solver</title>
+    <link rel="stylesheet" href="css/all.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="solver.js"></script>
@@ -16,36 +17,72 @@
         <h1 class="text-white text-center my-4">8 Puzzle Solver</h1>
         <section class="w-50 main p-4 d-flex flex-column justify-content-center align-items-start">
             <section id="puzzleSection" class="w-100 d-flex justify-content-center">
-                <div id="puzzle" class="row bg-info rounded p-2 position-relative">
-                    <div id="slot0" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">1</div></div>
-                    <div id="slot1" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">2</div></div>
-                    <div id="slot2" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">5</div></div>
-                    <div id="slot3" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">3</div></div>
-                    <div id="slot4" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">4</div></div>
-                    <div id="slot5" class="slot col-4 fw-bold fs-2 p-2"></div>
-                    <div id="slot6" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">6</div></div>
-                    <div id="slot7" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">7</div></div>
-                    <div id="slot8" class="slot col-4 fw-bold fs-2 p-2"><div class="element bg-danger h-100 rounded d-flex justify-content-center align-items-center">8</div></div>
+                <div id="puzzle" class="row bg-info p-2 position-relative">
+                    <div id="slot0" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">1
+                        </div>
+                    </div>
+                    <div id="slot1" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">2
+                        </div>
+                    </div>
+                    <div id="slot2" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">5
+                        </div>
+                    </div>
+                    <div id="slot3" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">3
+                        </div>
+                    </div>
+                    <div id="slot4" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">4
+                        </div>
+                    </div>
+                    <div id="slot5" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">8
+                        </div>
+                    </div>
+                    <div id="slot6" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">6
+                        </div>
+                    </div>
+                    <div id="slot7" class="slot col-4 fw-bold fs-2 p-2">
+                        <div class="element bg-danger h-100 d-flex justify-content-center align-items-center">7
+                        </div>
+                    </div>
+                    <div id="slot8" class="slot col-4 fw-bold fs-2 p-2"></div>
                 </div>
             </section>
             <section class="mt-4 w-100 bg- d-flex flex-column">
                 <div class="form-group mb-4">
                     <label for="initial">Initial state: </label>
-                    <input type="text" name="initial" id="initialState" class="form-control" placeholder="ex:035124687 (start from top left slot)" />
-                    <div class="d-none mt-1 alert alert-danger p-2">Invalid syntax: initial state must be eight characters 0-8 each appearing once.</div>
+                    <input type="text" value= "012345678"name="initial" id="initialState" class="form-control"
+                        placeholder="ex:035124687 (start from top left slot)" />
+                    <div class="d-none mt-1 alert alert-danger p-2">Invalid syntax: initial state must be eight
+                        characters 0-8 each appearing once.</div>
                     <div class="d-none mt-1 alert alert-danger p-2">This state is unsolvable.</div>
                 </div>
                 <div class="form-group mb-4">
                     <select class="form-select" id="algorithmType">
-                        <option selected value="0">Select algorithm</option>
+                        <option  value="0">Select algorithm</option>
                         <option value="1">BFS</option>
-                        <option value="2">DFS</option>
+                        <option selected value="2">DFS</option>
                         <option value="3">A* Manhattan</option>
                         <option value="3">A* Euclidean</option>
                     </select>
                     <div class="d-none mt-1 alert alert-danger p-2">Must select an algorithm.</div>
                 </div>
-                <button id="solve" class="btn w-50 mx-auto">Solve</button>
+                <button id="solve" class="btn w-50 mx-auto mb-3">Solve</button>
+                <div class="">
+                    <div class="w-100 d-flex justify-content-center">
+                        <button disabled class="btn me-3" id="prev"><i class="fas fa-chevron-left"></i></button>
+                        <button disabled class="btn ms-3" id="next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="w-100">
+                        <input type="checkbox" id="stepMethod" for="solMethod">
+                        <label for="solMethod" class="fs-5">solve step by step</label>
+                    </div>
+                </div>
             </section>
         </section>
     </div>

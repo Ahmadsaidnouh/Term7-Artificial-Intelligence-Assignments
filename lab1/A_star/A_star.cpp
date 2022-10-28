@@ -15,9 +15,12 @@ typedef unordered_map<string, string> uMap; // (state, parent)
 
 void AStarSearch(string initialState, string goalState)
 {
+    unordered_map<int, pair<int, int>> goalGrid;
+    setGrid(goalGrid, goalState);
+
     pQueue frontier;
     int g = 0;
-    int h = calculateManhattanHeuristic(initialState, goalState);
+    int h = calculateManhattanHeuristic(initialState, goalGrid);
     int f = g + h;
     frontier.insert(make_pair(f, initialState));
 
@@ -39,7 +42,7 @@ void AStarSearch(string initialState, string goalState)
         frontier.erase(frontier.begin());
         string s = p.second;
         f = p.first;
-        h = calculateManhattanHeuristic(s, goalState); // (state, goal)
+        h = calculateManhattanHeuristic(s, goalGrid);
         g = f - h;
 
         explored.insert(s);
@@ -52,7 +55,7 @@ void AStarSearch(string initialState, string goalState)
             break;
         }
 
-        findNeighbors(s, goalState, neighbors);
+        findNeighbors(s, goalState, neighbors, goalGrid);
         int fNew = 0;
         for (int i = 0; i < neighbors.size(); i++)
         {

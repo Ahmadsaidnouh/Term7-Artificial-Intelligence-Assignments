@@ -1,10 +1,49 @@
 #include "utilities.h"
 #include <stack>
 #include <iostream>
+#include <unordered_map>
 
 #define N 3
 
 typedef pair<int, string> frontierPair;
+
+void setGrid(unordered_map<int, pair<int, int>> &positions, string goalState)
+{
+    static int k = 0;
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            positions[int(goalState[k]) - 48] = {i, j};
+            k++;
+        }
+    }
+}
+
+pair<int, int> stringToVectorPositions(int pos)
+{
+    unordered_map<int, pair<int, int>> positions;
+
+    // take position of an element in state string
+    // then return its position in a 2d vector
+    positions[0] = {0, 0};
+    positions[1] = {0, 1};
+    positions[2] = {0, 2};
+    positions[3] = {1, 0};
+    positions[4] = {1, 1};
+    positions[5] = {1, 2};
+    positions[6] = {2, 0};
+    positions[7] = {2, 1};
+    positions[8] = {2, 2};
+
+    return positions[pos];
+}
+
+pair<int, int> findZero(string initialState)
+{
+    int found = initialState.find('0');
+    return stringToVectorPositions(found);
+}
 
 bool isGoal(string state, string goalState)
 {
@@ -45,25 +84,20 @@ vector2d toVector2D(string state)
     return vState;
 }
 
-int calculateManhattanHeuristic(string state, string goalState)
+int calculateManhattanHeuristic(string state, unordered_map<int, pair<int, int>> goalGrid)
 {
     vector2d vState = toVector2D(state);
-    vector2d vGoalState = toVector2D(goalState);
 
     int h = 0;
-    for (int state_i = 0; state_i < N; state_i++)
+
+    for (int i = 0; i < N; i++)
     {
-        for (int state_j = 0; state_j < N; state_j++)
+        for (int j = 0; j < N; j++)
         {
-            for (int goal_i = 0; goal_i < N; goal_i++)
+            if (vState[i][j] != 0)
             {
-                for (int goal_j = 0; goal_j < N; goal_j++)
-                {
-                    if (vState[state_i][state_j] == vGoalState[goal_i][goal_j] && vState[state_i][state_j] != 0)
-                    {
-                        h += abs(state_i - goal_i) + abs(state_j - goal_j);
-                    }
-                }
+                pair<int, int> pos = goalGrid[vState[i][j]];
+                h += abs(i - pos.first) + abs(j - pos.second);
             }
         }
     }
@@ -86,59 +120,32 @@ pair<string, pair<int, int>> checkDirections(string state)
 
     vector2d v = toVector2D(state);
 
-    int row = 0, column = 0;
+    pair<int, int> pos = findZero(state);
+    int row = pos.first;
+    int column = pos.second;
 
-    for (int i = 0; i < N; i++)
+    bool flags[4];
+    flags[0] = row != 0;    // up
+    flags[1] = row != 2;    // down
+    flags[2] = column != 2; // right
+    flags[3] = column != 0; // left
+
+    for (int i = 0; i < 4; i++)
     {
-        for (int j = 0; j < N; j++)
+        if (flags[i])
         {
-            if (v[i][j] == 0)
-            {
-                if (i != 0)
-                {
-                    directionsFlag += "1";
-                }
-                else
-                {
-                    directionsFlag += "0";
-                }
-
-                if (i != 2)
-                {
-                    directionsFlag += "1";
-                }
-                else
-                {
-                    directionsFlag += "0";
-                }
-
-                if (j != 2)
-                {
-                    directionsFlag += "1";
-                }
-                else
-                {
-                    directionsFlag += "0";
-                }
-
-                if (j != 0)
-                {
-                    directionsFlag += "1";
-                }
-                else
-                {
-                    directionsFlag += "0";
-                }
-                row = i;
-                column = j;
-                break;
-            }
+            directionsFlag += "1";
+        }
+        else
+        {
+            directionsFlag += "0";
         }
     }
+
     return make_pair(directionsFlag, make_pair(row, column));
 }
 
-void findNeighbors(string state, string goalState, vector<frontierPair> &neighbors)
+void findNeighbors(string state, string goalState, vector<frontierPair> &neighbors, unordered_map<int, pair<int, int>> goalGrid)
 {
     neighbors.clear();
 
@@ -152,51 +159,25 @@ void findNeighbors(string state, string goalState, vector<frontierPair> &neighbo
 
     vector2d vs = toVector2D(state);
 
-    if (possibleDirections[0] == '1') // up
-    {
-        string str = "";
-        str = state;
-        vector2d vn = toVector2D(str);
-        vn[zeroRow][zeroColumn] = vs[zeroRow - 1][zeroColumn];
-        vn[zeroRow - 1][zeroColumn] = 0;
-        str = toString(vn);
-        int h = calculateManhattanHeuristic(str, goalState);
-        neighbors.push_back(make_pair(h, str));
-    }
+    vector<pair<int, int>> directions;
+    directions.push_back(make_pair(zeroRow - 1, zeroColumn)); // up
+    directions.push_back(make_pair(zeroRow + 1, zeroColumn)); // down
+    directions.push_back(make_pair(zeroRow, zeroColumn + 1)); // right
+    directions.push_back(make_pair(zeroRow, zeroColumn - 1)); // left
 
-    if (possibleDirections[1] == '1') // down
+    for (int i = 0; i < possibleDirections.size(); i++)
     {
-        string str = "";
-        str = state;
-        vector2d vn = toVector2D(str);
-        vn[zeroRow][zeroColumn] = vs[zeroRow + 1][zeroColumn];
-        vn[zeroRow + 1][zeroColumn] = 0;
-        str = toString(vn);
-        int h = calculateManhattanHeuristic(str, goalState);
-        neighbors.push_back(make_pair(h, str));
-    }
-
-    if (possibleDirections[2] == '1') // right
-    {
-        string str = "";
-        str = state;
-        vector2d vn = toVector2D(str);
-        vn[zeroRow][zeroColumn] = vs[zeroRow][zeroColumn + 1];
-        vn[zeroRow][zeroColumn + 1] = 0;
-        str = toString(vn);
-        int h = calculateManhattanHeuristic(str, goalState);
-        neighbors.push_back(make_pair(h, str));
-    }
-
-    if (possibleDirections[3] == '1') // left
-    {
-        string str = state;
-        vector2d vn = toVector2D(str);
-        vn[zeroRow][zeroColumn] = vs[zeroRow][zeroColumn - 1];
-        vn[zeroRow][zeroColumn - 1] = 0;
-        str = toString(vn);
-        int h = calculateManhattanHeuristic(str, goalState);
-        neighbors.push_back(make_pair(h, str));
+        if (possibleDirections[i] == '1')
+        {
+            string str = "";
+            str = state;
+            vector2d vn = toVector2D(str);
+            vn[zeroRow][zeroColumn] = vs[directions[i].first][directions[i].second];
+            vn[directions[i].first][directions[i].second] = 0;
+            str = toString(vn);
+            int h = calculateManhattanHeuristic(str, goalGrid);
+            neighbors.push_back(make_pair(h, str));
+        }
     }
 }
 
@@ -204,7 +185,6 @@ bool setSearch(set<string> states, string state)
 {
     auto pos = states.find(state);
 
-    // print element if it is present in set
     if (pos != states.end())
         return true;
     else

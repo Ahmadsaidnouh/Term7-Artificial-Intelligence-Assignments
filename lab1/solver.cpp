@@ -1,4 +1,3 @@
-#include "A_star.h"
 #include <iostream>
 #include <algorithm>
 #include <string.h>
@@ -148,6 +147,19 @@ pair<string, pair<int, int>> checkDirections(string state)
     return make_pair(directionsFlag, make_pair(row, column));
 }
 
+string toString(vector2d state)
+{
+    string s = "";
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            s += to_string(state[i][j]);
+        }
+    }
+    return s;
+}
+
 vector<string> findNeighbors(string state)
 {
     vector<string> neighbors;
@@ -192,19 +204,6 @@ bool setSearch(set<string> states, string state)
         return true;
     else
         return false;
-}
-
-string toString(vector2d state)
-{
-    string s = "";
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < N; j++)
-        {
-            s += to_string(state[i][j]);
-        }
-    }
-    return s;
 }
 
 vector<int> tracePath(uMap parentMap)

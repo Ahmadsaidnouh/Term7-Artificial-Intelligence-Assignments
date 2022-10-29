@@ -56,7 +56,7 @@
             <section class="mt-4 w-100 bg- d-flex flex-column">
                 <div class="form-group mb-4">
                     <label for="initial">Initial state: </label>
-                    <input type="text" value= "012345678"name="initial" id="initialState" class="form-control"
+                    <input type="text" name="initial" id="initialState" class="form-control"
                         placeholder="ex:035124687 (start from top left slot)" />
                     <div class="d-none mt-1 alert alert-danger p-2">Invalid syntax: initial state must be eight
                         characters 0-8 each appearing once.</div>
@@ -64,9 +64,9 @@
                 </div>
                 <div class="form-group mb-4">
                     <select class="form-select" id="algorithmType">
-                        <option  value="0">Select algorithm</option>
+                        <option selected value="0">Select algorithm</option>
                         <option value="1">BFS</option>
-                        <option selected value="2">DFS</option>
+                        <option value="2">DFS</option>
                         <option value="3">A* Manhattan</option>
                         <option value="3">A* Euclidean</option>
                     </select>
@@ -84,6 +84,42 @@
                     </div>
                 </div>
             </section>
+            <section class="mt-4 w-100 statistics p-2">
+                <h3 class="w-100 text-center">Statistics</h3>
+                <div class="align-items-center m-auto row border-bottom p-2">
+                    <div class="col-4">
+                        <p class="fw-bold">Execution time:</p>
+                    </div>
+                    <div class="col-8">
+                        <p id="excTime">-----</p>
+                    </div>
+                </div>
+                <div class="align-items-center m-auto row border-bottom p-2">
+                    <div class="col-4">
+                        <p class="fw-bold">Cost:</p>
+                    </div>
+                    <div class="col-8">
+                        <p id="cost">-----</p>
+                    </div>
+                </div>
+                <div class="align-items-center m-auto row border-bottom p-2">
+                    <div class="col-4">
+                        <p class="fw-bold">Search depth:</p>
+                    </div>
+                    <div class="col-8">
+                        <p id="depth">-----</p>
+                    </div>
+                </div>
+                <div class="align-items-center m-auto row p-2">
+                    <div class="col-4">
+                        <p class="fw-bold">Expanded nodes:</p>
+                    </div>
+                    <div class="col-8">
+                        <p id="expanded">-----</p>
+                    </div>
+                </div>
+            </section>
+
         </section>
     </div>
 

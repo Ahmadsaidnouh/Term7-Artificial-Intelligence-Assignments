@@ -9,6 +9,17 @@ let previousBtn = document.getElementById("prev");
 let nextBtn = document.getElementById("next");
 let stepMethod = false;
 let currentStep = 0;
+let currentlySolvedState = "";
+let initialStateInpt = document.getElementById("initialState");
+let algorithmType = document.getElementById("algorithmType");
+let excTime = document.getElementById("excTime");
+let cost = document.getElementById("cost");
+let depth = document.getElementById("depth");
+let expanded = document.getElementById("expanded");
+let excTimeValue;
+let costValue;
+let depthValue;
+let expandedValue;
 
 // start inputs validation functions
 function isValidIntialState(state)
@@ -59,7 +70,7 @@ function callSolve()
 {
     hideAllAlerts();
 
-    let initialState = document.getElementById("initialState").value;
+    let initialState = initialStateInpt.value;
     let algoType = Number(document.getElementById("algorithmType").value);
 
     let flag = 0;
@@ -73,9 +84,13 @@ function callSolve()
         displayselectedAlert(2);
     }
 
-    if (flag)
-        return
+    if (flag || (currentlySolvedState == initialState))
+        return;
 
+
+
+    currentlySolvedState = initialState;
+    console.log("solve");
     initialState = Number(initialState);
 
     Module.ccall('solve',
@@ -91,7 +106,7 @@ function SolutionPanel(result)
     }
     else {
         movementsArr = parseResult(result);
-        console.log(movementsArr);
+        // console.log(movementsArr);
         if (stepMethod) {
             previousBtn.disabled = false;
             nextBtn.disabled = false;
@@ -103,23 +118,31 @@ function SolutionPanel(result)
 }
 function parseResult(result)
 {
-    console.log(result);
-    let moves = result.split(",");
+    // console.log(result);
+    let response = result.split(";");
+
+    let path = response[0];
+    expandedValue = response[1];
+    depthValue = response[2];
+    // console.log("*****",expandedCount,maxDepth);
+    
+    let moves = path.split(",");
     moves.pop();
-    console.log(moves);
+    // console.log(moves);
     let tempMoves = [];
     let tempMove = {};
     let temp;
     moves.forEach((move) =>
     {
         temp = move.split("-");
-        console.log(temp);
+        // console.log(temp);
         tempMove.newZero = temp[0];
         tempMove.direction = temp[1];
         tempMove.currentZero = temp[2];
         tempMoves.push(tempMove);
         tempMove = {}
     })
+    costValue = tempMoves.length;
     return tempMoves;
 }
 // end main functions that calls the c++ code
@@ -162,15 +185,22 @@ function generateAnimations()
 {
     let count = 0;
     let len = movementsArr.length - 1;
+    
+    if(len == -1)
+        return
+
     animate(movementsArr[count].newZero, movementsArr[count].direction, movementsArr[count].currentZero);
     ++count;
     let timeInt = setInterval(() =>
     {
-        if (count >= len) {
+        if (count > len) {
             clearInterval(timeInt);
         }
-        animate(movementsArr[count].newZero, movementsArr[count].direction, movementsArr[count].currentZero);
-        count++
+        else {
+
+            animate(movementsArr[count].newZero, movementsArr[count].direction, movementsArr[count].currentZero);
+            count++
+        }
     }, 500)
 }
 function displayInitialState(state)
@@ -234,18 +264,52 @@ nextBtn.addEventListener("click", () =>
 // 
 // 
 // 
-// add click event listener to Solve button
+// add click event listener to handle various user interactions
 solveBtn.addEventListener("click", () =>
 {
     translationValue = $("#slot0").innerWidth();
     console.time("c++");
+    let t1 = performance.now();
     callSolve();
+    excTimeValue = performance.now() - t1;
     console.timeEnd("c++");
+    displayStatistics();
 })
-// document.getElementById("initialState").addEventListener("keyup", () => {
-//     let state = document.getElementById("initialState").value;
-//     if(isValidIntialState(state))
-//     {
-//         displayInitialState(state);
-//     }
-// })
+initialStateInpt.addEventListener("keyup", () =>
+{
+    let state = initialStateInpt.value;
+    if (isValidIntialState(state)) {
+        displayInitialState(state);
+    }
+})
+initialStateInpt.addEventListener("keyup", () =>
+{
+    resetStatistics();
+    let state = initialStateInpt.value;
+    if (isValidIntialState(state)) {
+        currentlySolvedState = "";
+        displayInitialState(state);
+    }
+})
+algorithmType.addEventListener("change", () =>
+{
+    resetStatistics();
+    currentlySolvedState = "";
+    let state = initialStateInpt.value;
+    if (isValidIntialState(state)) {
+        displayInitialState(state);
+    }
+})
+
+function resetStatistics() {
+    excTime.innerText = "-----";
+    cost.innerText = "-----";
+    depth.innerText = "-----";
+    expanded.innerText = "-----";
+}
+function displayStatistics() {
+    excTime.innerText = excTimeValue + " ms";
+    cost.innerText = costValue + " moves";
+    depth.innerText = depthValue + " nodes";
+    expanded.innerText = expandedValue + " nodes";
+}

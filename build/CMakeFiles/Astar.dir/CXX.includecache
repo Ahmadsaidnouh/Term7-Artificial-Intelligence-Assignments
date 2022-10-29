@@ -27,10 +27,14 @@ unordered_map
 /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/A_star.h
 utilities.h
 /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/utilities.h
+tuple
+-
 
 /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/main.cpp
 A_star.h
 /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/A_star.h
+string
+-
 iostream
 -
 
@@ -42,6 +46,10 @@ stack
 iostream
 -
 unordered_map
+-
+math.h
+-
+string
 -
 
 /media/ahmed/DATA/Term7/artificial_intelligence/labs_team/lab1/Term7-Artificial-Intelligence-Assignments/lab1/A_star/utilities.h

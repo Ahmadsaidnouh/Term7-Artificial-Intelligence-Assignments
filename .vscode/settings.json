@@ -1,3 +1,7 @@
 {
-    "cmake.sourceDirectory": "${workspaceFolder}/lab1/A_star"
+    "cmake.sourceDirectory": "${workspaceFolder}/lab1/A_star",
+    "files.associations": {
+        "*.txt": "cpp",
+        "ostream": "cpp"
+    }
 }

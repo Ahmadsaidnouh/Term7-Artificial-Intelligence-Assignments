@@ -1,3 +1,4 @@
 #include "utilities.h"
+#include <tuple>
 
-void AStarSearch(string, string);
+tuple<vector<int>, long long, long long> AStarSearch(string, string, int); // path explored depth

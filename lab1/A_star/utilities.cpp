@@ -2,23 +2,12 @@
 #include <stack>
 #include <iostream>
 #include <unordered_map>
+#include <math.h>
+#include <string>
 
 #define N 3
 
 typedef pair<int, string> frontierPair;
-
-void setGrid(unordered_map<int, pair<int, int>> &positions, string goalState)
-{
-    static int k = 0;
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < N; j++)
-        {
-            positions[int(goalState[k]) - 48] = {i, j};
-            k++;
-        }
-    }
-}
 
 pair<int, int> stringToVectorPositions(int pos)
 {
@@ -84,8 +73,19 @@ vector2d toVector2D(string state)
     return vState;
 }
 
-int calculateManhattanHeuristic(string state, unordered_map<int, pair<int, int>> goalGrid)
+int calculateHeuristic(string state, int type)
 {
+    unordered_map<int, pair<int, int>> goalPositions;
+    goalPositions[0] = {0, 0};
+    goalPositions[1] = {0, 1};
+    goalPositions[2] = {0, 2};
+    goalPositions[3] = {1, 0};
+    goalPositions[4] = {1, 1};
+    goalPositions[5] = {1, 2};
+    goalPositions[6] = {2, 0};
+    goalPositions[7] = {2, 1};
+    goalPositions[8] = {2, 2};
+
     vector2d vState = toVector2D(state);
 
     int h = 0;
@@ -96,8 +96,15 @@ int calculateManhattanHeuristic(string state, unordered_map<int, pair<int, int>>
         {
             if (vState[i][j] != 0)
             {
-                pair<int, int> pos = goalGrid[vState[i][j]];
-                h += abs(i - pos.first) + abs(j - pos.second);
+                pair<int, int> pos = goalPositions[vState[i][j]];
+                if (type == 0)
+                {
+                    h += abs(i - pos.first) + abs(j - pos.second);
+                }
+                else
+                {
+                    h += sqrt((abs(i - pos.first) * abs(i - pos.first)) + (abs(j - pos.second) * abs(j - pos.second)));
+                }
             }
         }
     }
@@ -145,9 +152,9 @@ pair<string, pair<int, int>> checkDirections(string state)
     return make_pair(directionsFlag, make_pair(row, column));
 }
 
-void findNeighbors(string state, string goalState, vector<frontierPair> &neighbors, unordered_map<int, pair<int, int>> goalGrid)
+vector<string> findNeighbors(string state)
 {
-    neighbors.clear();
+    vector<string> neighbors;
 
     pair<string, pair<int, int>> p;
     p = checkDirections(state);
@@ -175,10 +182,10 @@ void findNeighbors(string state, string goalState, vector<frontierPair> &neighbo
             vn[zeroRow][zeroColumn] = vs[directions[i].first][directions[i].second];
             vn[directions[i].first][directions[i].second] = 0;
             str = toString(vn);
-            int h = calculateManhattanHeuristic(str, goalGrid);
-            neighbors.push_back(make_pair(h, str));
+            neighbors.push_back(str);
         }
     }
+    return neighbors;
 }
 
 bool setSearch(set<string> states, string state)
@@ -204,25 +211,17 @@ string toString(vector2d state)
     return s;
 }
 
-void tracePath(uMap parentMap, string goalState)
+vector<int> tracePath(uMap parentMap, string goalState)
 {
-    stack<string> Path;
+    vector<int> path;
 
     while (parentMap[goalState] != goalState)
     {
-        Path.push(goalState);
+        path.push_back(stoi(goalState));
         goalState = parentMap[goalState];
     }
 
-    Path.push(goalState);
-    while (!Path.empty())
-    {
-        string p = Path.top();
-        Path.pop();
-        cout << endl;
-        cout << p << endl;
-        print2dVector(toVector2D(p));
-    }
+    path.push_back(stoi(goalState));
 
-    return;
+    return path;
 }

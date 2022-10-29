@@ -21,13 +21,13 @@ bool isGoal(string, string);
 
 void print2dVector(vector2d);
 
-int calculateManhattanHeuristic(string state, unordered_map<int, pair<int, int>> goalGrid);
+int calculateHeuristic(string state, int type);
 
 pair<string, pair<int, int>> checkDirections(string);
 
-void findNeighbors(string state, string goalState, vector<frontierPair> &neighbors, unordered_map<int, pair<int, int>> goalGrid);
+vector<string> findNeighbors(string state);
 
-void tracePath(uMap, string);
+vector<int> tracePath(uMap, string);
 
 bool setSearch(set<string> explored, string state);
 

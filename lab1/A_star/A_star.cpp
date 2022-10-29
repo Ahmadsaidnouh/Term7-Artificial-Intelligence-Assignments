@@ -9,20 +9,20 @@
 
 #define N 3 // 3x3 grid
 
-typedef pair<int, string> frontierPair;     // (f, state)
-typedef set<frontierPair> pQueue;           // frontier
-typedef unordered_map<string, string> uMap; // (state, parent)
+typedef pair<int, string> frontierPair;                                                   // (f, state)
+typedef priority_queue<frontierPair, vector<frontierPair>, greater<frontierPair>> pQueue; // frontier
+typedef unordered_map<string, string> uMap;                                               // (state, parent)
+typedef tuple<vector<int>, long long, long long> rTuple;                                  // (path, explored, depth)
 
-void AStarSearch(string initialState, string goalState)
+rTuple AStarSearch(string initialState, string goalState, int type)
 {
-    unordered_map<int, pair<int, int>> goalGrid;
-    setGrid(goalGrid, goalState);
+    rTuple results;
 
     pQueue frontier;
     int g = 0;
-    int h = calculateManhattanHeuristic(initialState, goalGrid);
+    int h = calculateHeuristic(initialState, type);
     int f = g + h;
-    frontier.insert(make_pair(f, initialState));
+    frontier.push(make_pair(f, initialState));
 
     set<string> searchFrontier;
     searchFrontier.insert(initialState);
@@ -30,58 +30,62 @@ void AStarSearch(string initialState, string goalState)
     uMap parentMap;
     parentMap[initialState] = initialState;
 
+    unordered_map<string, double> costMap; // f
+    costMap[initialState] = f;
+
     set<string> explored;
 
-    vector<frontierPair> neighbors; // (h, state)
-
-    bool goalFound = false;
+    vector<string> neighbors; // (h, state)
 
     while (!frontier.empty())
     {
-        frontierPair p = *frontier.begin(); // pair of (f, state)
-        frontier.erase(frontier.begin());
+        frontierPair p = frontier.top(); // pair of (f, state)
+        frontier.pop();
+
+        searchFrontier.erase(p.second);
+
         string s = p.second;
         f = p.first;
-        h = calculateManhattanHeuristic(s, goalGrid);
+        h = calculateHeuristic(s, type);
         g = f - h;
 
         explored.insert(s);
 
         if (isGoal(s, goalState))
         {
+            vector<int> path;
             cout << "goal state is found" << endl;
-            goalFound = true;
-            tracePath(parentMap, goalState);
+            path = tracePath(parentMap, goalState);
+            get<0>(results) = path;
+            get<1>(results) = explored.size();
+            get<2>(results) = path.size() - 1;
             break;
         }
 
-        findNeighbors(s, goalState, neighbors, goalGrid);
+        neighbors = findNeighbors(s);
         int fNew = 0;
+        int hNew = 0;
         for (int i = 0; i < neighbors.size(); i++)
         {
-            fNew = g + neighbors[i].first + 1; // f = g + h
-            if (!setSearch(explored, neighbors[i].second) && !setSearch(searchFrontier, neighbors[i].second))
+            hNew = calculateHeuristic(neighbors[i], type);
+            fNew = g + hNew + 1; // f = g + h
+            if (!setSearch(explored, neighbors[i]) && !setSearch(searchFrontier, neighbors[i]))
             {
-
-                frontier.insert(make_pair(fNew, neighbors[i].second)); // (f, state)
-                searchFrontier.insert(neighbors[i].second);
-                parentMap[neighbors[i].second] = p.second;
+                frontier.push(make_pair(fNew, neighbors[i])); // (f, state)
+                searchFrontier.insert(neighbors[i]);
+                parentMap[neighbors[i]] = p.second;
+                costMap[neighbors[i]] = fNew;
             }
-            else if (!setSearch(explored, neighbors[i].second))
+            else if (!setSearch(explored, neighbors[i]))
             {
-                if (fNew < neighbors[i].first)
+                if (fNew < costMap[neighbors[i]])
                 {
-                    frontier.insert(make_pair(fNew, neighbors[i].second));
-                    parentMap[neighbors[i].second] = p.second;
+                    frontier.push(make_pair(fNew, neighbors[i]));
+                    parentMap[neighbors[i]] = p.second;
+                    costMap[neighbors[i]] = fNew;
                 }
             }
         }
     }
-
-    if (!goalFound)
-    {
-        cout << "failed to find the goal state" << endl;
-    }
-
-    return;
+    return results;
 }

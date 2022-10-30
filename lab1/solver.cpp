@@ -9,6 +9,7 @@
 #include <set>
 #include <tuple>
 #include <queue>
+#include <stack>
 #include <utility>
 #include <emscripten.h>
 
@@ -380,20 +381,108 @@ vector<int> getNeighbors(int state)
 // 
 // 
 // start states solving functions
-rTuple solveBFS(int initialState)
+rTuple solveBFS(int initState)
 {
-    rTuple result;
-    // code here
+string initialState = to_string(initState);
+    if (initialState.size() == 8)
+    {
+        initialState = "0" + initialState;
+    }
 
-    return result;
+    rTuple results;   
+    queue<string> frontier;
+    frontier.push(initialState);
+    set<string> searchFrontier;
+    searchFrontier.insert(initialState);
+    uMap parentMap;
+    parentMap[initialState] = initialState;
+
+    set<string> explored;
+    vector<string> neighbors;
+
+    while (!frontier.empty())
+    {
+        string p = frontier.front();
+        frontier.pop();
+
+        searchFrontier.erase(p);
+
+        string s = p;
+
+        explored.insert(s);
+
+        if (s == "012345678")
+        {
+            vector<int> path;
+            path = tracePath(parentMap);
+            results = make_tuple(path, explored.size(), path.size() - 1);
+            break;
+        }
+
+        neighbors = findNeighbors(s);
+        for (int i = 0; i < neighbors.size(); i++)
+        {
+            if (!setSearch(explored, neighbors[i]) && !setSearch(searchFrontier, neighbors[i]))
+            {
+                frontier.push(neighbors[i]);
+                searchFrontier.insert(neighbors[i]);
+                parentMap[neighbors[i]] = p;
+            }
+        }
+    }
+    return results;
 }
 
-rTuple solveDFS(int initialState)
+rTuple solveDFS(int initState)
 {
-    rTuple result;
-    // code here
+    string initialState = to_string(initState);
+    if (initialState.size() == 8)
+    {
+        initialState = "0" + initialState;
+    }
 
-    return result;
+    rTuple results;   
+    stack<string> frontier;
+    frontier.push(initialState);
+    set<string> searchFrontier;
+    searchFrontier.insert(initialState);
+    uMap parentMap;
+    parentMap[initialState] = initialState;
+
+    set<string> explored;
+    vector<string> neighbors;
+
+    while (!frontier.empty())
+    {
+        string p = frontier.top();
+        frontier.pop();
+
+        searchFrontier.erase(p);
+
+        string s = p;
+
+        explored.insert(s);
+
+        if (s == "012345678")
+        {
+            vector<int> path;
+            path = tracePath(parentMap);
+            results = make_tuple(path, explored.size(), path.size() - 1);
+            break;
+        }
+
+        neighbors = findNeighbors(s);
+        for (int i = 0; i < neighbors.size(); i++)
+        {
+            if (!setSearch(explored, neighbors[i]) && !setSearch(searchFrontier, neighbors[i]))
+            {
+                frontier.push(neighbors[i]);
+                searchFrontier.insert(neighbors[i]);
+                parentMap[neighbors[i]] = p;
+            }
+        }
+    }
+    return results;
 }
 
 rTuple solveAStar(int initState, int type)

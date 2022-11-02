@@ -20,8 +20,12 @@ let excTimeValue;
 let costValue;
 let depthValue;
 let expandedValue;
+let errorExists = 0;
 
-// start inputs validation functions
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start inputs validation functions //////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function isValidIntialState(state)
 {
     let regex = /^[0-8]{9}$/;
@@ -45,11 +49,16 @@ function isValidAlgorithmType(state)
     let res = document.getElementById("algorithmType").value;
     return res != 0;
 }
-// end inputs validation functions
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end inputs validation functions ////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 // 
 // 
-// start alerts controlling functions
+// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start alerts, statistics && initial state controlling functions ////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function hideAllAlerts()
 {
     document.querySelectorAll(".alert").forEach((ele) =>
@@ -61,14 +70,48 @@ function displayselectedAlert(index)
 {
     Array.from(document.querySelectorAll(".alert"))[index].classList.replace("d-none", "d-block");
 }
-// end alerts controlling functions
+function resetStatistics()
+{
+    excTime.innerText = "-----";
+    cost.innerText = "-----";
+    depth.innerText = "-----";
+    expanded.innerText = "-----";
+}
+function displayStatistics()
+{
+    excTime.innerText = excTimeValue + " ms";
+    cost.innerText = costValue + " moves";
+    depth.innerText = depthValue + " nodes";
+    expanded.innerText = expandedValue + " nodes";
+}
+function displayInitialState(state)
+{
+    let tmp;
+    for (let i = 0; i < state.length; i++) {
+        if (state[i] == "0") {
+            document.querySelector(`#slot${i}`).innerHTML = "";
+        }
+        else {
+            tmp = part1 + state[i] + part2;
+            document.querySelector(`#slot${i}`).innerHTML = `${tmp}`;
+        }
+
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end alerts, statistics && initial state controlling functions //////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 // 
 // 
-// start main functions that calls the c++ code
+// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start main functions that call the c++ code ////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function callSolve()
 {
     hideAllAlerts();
+    errorExists = 0;
 
     let initialState = initialStateInpt.value;
     let algoType = Number(document.getElementById("algorithmType").value);
@@ -84,8 +127,11 @@ function callSolve()
         displayselectedAlert(2);
     }
 
-    if (flag || (currentlySolvedState == initialState))
+    if (flag || (currentlySolvedState == initialState)) {
+        errorExists = 1;
+        resetStatistics();
         return;
+    }
 
 
 
@@ -102,12 +148,13 @@ function callSolve()
 function SolutionPanel(result)
 {
     if (result == "unsolvable") {
+        errorExists = 1;
         displayselectedAlert(1);
     }
     else {
         movementsArr = parseResult(result);
-        // console.log(movementsArr);
         if (stepMethod) {
+            currentStep = 0;
             previousBtn.disabled = false;
             nextBtn.disabled = false;
         }
@@ -118,24 +165,20 @@ function SolutionPanel(result)
 }
 function parseResult(result)
 {
-    // console.log(result);
     let response = result.split(";");
 
     let path = response[0];
     expandedValue = response[1];
     depthValue = response[2];
-    // console.log("*****",expandedCount,maxDepth);
-    
+
     let moves = path.split(",");
     moves.pop();
-    // console.log(moves);
     let tempMoves = [];
     let tempMove = {};
     let temp;
     moves.forEach((move) =>
     {
         temp = move.split("-");
-        // console.log(temp);
         tempMove.newZero = temp[0];
         tempMove.direction = temp[1];
         tempMove.currentZero = temp[2];
@@ -145,11 +188,16 @@ function parseResult(result)
     costValue = tempMoves.length;
     return tempMoves;
 }
-// end main functions that calls the c++ code
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end main functions that call the c++ code //////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 // 
 // 
-// start the animation controlling functions
+// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start the animation controlling functions //////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function move1(current, direction)
 {
     let a, b;
@@ -185,8 +233,8 @@ function generateAnimations()
 {
     let count = 0;
     let len = movementsArr.length - 1;
-    
-    if(len == -1)
+
+    if (len == -1)
         return
 
     animate(movementsArr[count].newZero, movementsArr[count].direction, movementsArr[count].currentZero);
@@ -203,25 +251,16 @@ function generateAnimations()
         }
     }, 500)
 }
-function displayInitialState(state)
-{
-    let tmp;
-    for (let i = 0; i < state.length; i++) {
-        if (state[i] == "0") {
-            document.querySelector(`#slot${i}`).innerHTML = "";
-        }
-        else {
-            tmp = part1 + state[i] + part2;
-            document.querySelector(`#slot${i}`).innerHTML = `${tmp}`;
-        }
-
-    }
-}
-// end the animation controlling functions
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end the animation controlling functions ////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 // 
 // 
-// start step by step animation control functions
+// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start step by step animation control functions//////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 stepMethodcheckBox.addEventListener("click", function ()
 {
     if (stepMethodcheckBox.checked) {
@@ -236,7 +275,6 @@ stepMethodcheckBox.addEventListener("click", function ()
 previousBtn.addEventListener("click", () =>
 {
     if (currentStep > 0) {
-        // console.log(movementsArr[currentStep]);
         let oppositeDirection;
 
         if (movementsArr[currentStep - 1].direction == "up")
@@ -255,16 +293,20 @@ previousBtn.addEventListener("click", () =>
 nextBtn.addEventListener("click", () =>
 {
     if (currentStep < movementsArr.length) {
-        // console.log(movementsArr[currentStep]);
         animate(movementsArr[currentStep].newZero, movementsArr[currentStep].direction, movementsArr[currentStep].currentZero)
         ++currentStep;
     }
 })
-// end step by step animation control functions
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end step by step animation control functions ///////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 // 
 // 
-// add click event listener to handle various user interactions
+// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// add click event listener to handle various user interactions ///////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 solveBtn.addEventListener("click", () =>
 {
     translationValue = $("#slot0").innerWidth();
@@ -273,7 +315,9 @@ solveBtn.addEventListener("click", () =>
     callSolve();
     excTimeValue = performance.now() - t1;
     console.timeEnd("c++");
-    displayStatistics();
+    if (!errorExists) {
+        displayStatistics();
+    }
 })
 initialStateInpt.addEventListener("keyup", () =>
 {
@@ -282,9 +326,14 @@ initialStateInpt.addEventListener("keyup", () =>
         displayInitialState(state);
     }
 })
-initialStateInpt.addEventListener("keyup", () =>
+initialStateInpt.addEventListener("change", () =>
 {
     resetStatistics();
+    
+    currentStep = 0;
+    previousBtn.disabled = true;
+    nextBtn.disabled = true;
+    
     let state = initialStateInpt.value;
     if (isValidIntialState(state)) {
         currentlySolvedState = "";
@@ -294,22 +343,14 @@ initialStateInpt.addEventListener("keyup", () =>
 algorithmType.addEventListener("change", () =>
 {
     resetStatistics();
+    
+    currentStep = 0;
+    previousBtn.disabled = true;
+    nextBtn.disabled = true;
+
     currentlySolvedState = "";
     let state = initialStateInpt.value;
     if (isValidIntialState(state)) {
         displayInitialState(state);
     }
 })
-
-function resetStatistics() {
-    excTime.innerText = "-----";
-    cost.innerText = "-----";
-    depth.innerText = "-----";
-    expanded.innerText = "-----";
-}
-function displayStatistics() {
-    excTime.innerText = excTimeValue + " ms";
-    cost.innerText = costValue + " moves";
-    depth.innerText = depthValue + " nodes";
-    expanded.innerText = expandedValue + " nodes";
-}

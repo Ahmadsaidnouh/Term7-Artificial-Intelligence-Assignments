@@ -248,30 +248,6 @@ bool checkTerminalNode(vector2D board)
            getAvailableLocations(board).size() == 0;
 }
 
-int getBestMove(vector2D board, int slot)
-{
-    srand(time(0));
-    vector<int> availableLocations = getAvailableLocations(board);
-    int bestScore = numeric_limits<int>::min();
-    int bestColumnIndex = rand() % availableLocations.size();
-    int bestColumn = availableLocations[bestColumnIndex];
-    for (int column = 0; column < availableLocations.size(); column++)
-    {
-        int row = nextAvailableRow(board, column);
-        vector2D tempBoard;
-        tempBoard.insert(tempBoard.begin(), board.begin(), board.end());
-        fillSlot(tempBoard, row, column, slot);
-        int score = scorePosition(tempBoard, slot);
-        if (score > bestScore)
-        {
-            bestScore = score;
-            bestColumn = column;
-        }
-    }
-
-    return bestColumn;
-}
-
 pair<int, int> minimax(vector2D board, int depth, int alpha, int beta, bool maximizer)
 {
     vector<int> availableLocations = getAvailableLocations(board);

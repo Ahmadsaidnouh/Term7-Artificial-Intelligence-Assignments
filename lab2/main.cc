@@ -309,6 +309,7 @@ pair<int, int> minimax(vector2D board, int depth, int alpha, int beta, bool maxi
     if (maximizer)
     {
         value = numeric_limits<int>::min();
+        srand(time(0));
         index = rand() % availableLocations.size();
         column = availableLocations[index];
         for (int col = 0; col < availableLocations.size(); col++)
@@ -335,6 +336,7 @@ pair<int, int> minimax(vector2D board, int depth, int alpha, int beta, bool maxi
     else
     {
         value = numeric_limits<int>::max();
+        srand(time(0));
         index = rand() % availableLocations.size();
         column = availableLocations[index];
         for (int col = 0; col < availableLocations.size(); col++)
@@ -372,6 +374,7 @@ int main()
     {
         if (turn == USER)
         {
+            cout << "player turn:" << endl;
             int c = 0;
             cin >> c;
             if (validLocation(gameBoard, c))
@@ -391,6 +394,7 @@ int main()
         }
         else
         {
+            cout << "AI turn:" << endl;
             pair<int, int> p;
             p = minimax(gameBoard, 5, numeric_limits<int>::min(), numeric_limits<int>::max(), true);
             if (validLocation(gameBoard, p.first))

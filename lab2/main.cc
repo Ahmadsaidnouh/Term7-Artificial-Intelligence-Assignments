@@ -362,7 +362,10 @@ int main()
 {
     vector2D gameBoard = createBoard();
     displayBoard(gameBoard);
+
     bool gameOver = false;
+
+    srand(time(0));
     int turn = rand() % 2;
 
     while (!gameOver)
@@ -395,7 +398,7 @@ int main()
                 int row = nextAvailableRow(gameBoard, p.first);
                 fillSlot(gameBoard, row, p.first, AI_AGENT_SLOT);
                 displayBoard(gameBoard);
-                if (winningMove(gameBoard, AI_AGENT))
+                if (winningMove(gameBoard, AI_AGENT_SLOT))
                 {
                     cout << "AI_AGENT WON" << endl;
                     break;

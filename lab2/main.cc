@@ -16,6 +16,12 @@ using namespace std;
 
 typedef vector<vector<int>> vector2D;
 
+int evaluationTable[ROWS][COLUMNS] = {{3, 4, 5, 7, 5, 4, 3},
+                                      {4, 6, 8, 10, 8, 6, 4},
+                                      {5, 8, 11, 13, 11, 8, 5},
+                                      {5, 8, 11, 13, 11, 8, 5},
+                                      {4, 6, 8, 10, 8, 6, 4},
+                                      {3, 4, 5, 7, 5, 4, 3}};
 vector2D createBoard()
 {
     vector2D board(ROWS, vector<int>(COLUMNS, 0));
@@ -142,7 +148,7 @@ int doEvaluation(vector<int> subVector, int slot)
 
     return score;
 }
-
+/*
 int scorePosition(vector2D board, int slot)
 {
     int score = 0;
@@ -226,7 +232,18 @@ int scorePosition(vector2D board, int slot)
 
     return score;
 }
-
+*/
+int scorePosition(vector2D board, int slot) {
+    // int utility = 138;
+    int sum = 0;
+    for (int i = 0; i < ROWS; i++)
+        for (int j = 0; j < COLUMNS; j++)
+            if (board[i][j] == '2')
+                sum = slot == AI_AGENT ? sum + evaluationTable[i][j] : sum - evaluationTable[i][j];
+            else if (board[i][j] == '1')
+                sum = slot == AI_AGENT ? sum - evaluationTable[i][j] : sum + evaluationTable[i][j];
+    return sum;
+}
 vector<int> getAvailableLocations(vector2D board)
 {
     vector<int> availableLocations;

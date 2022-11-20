@@ -2,7 +2,12 @@
 
 using namespace std;
 
+long long tot = 0;
 unordered_map<long long, long long> policyMap;
+unordered_map<long long, vector<pair<long long, long long>>> nodes;
+unordered_map<long long, tuple<long long, long long, long long, long long, unordered_map<long long, vector<pair<long long, long long>>>>> tree; // alpha beta score action neighbors
+
+long long root;
 
 void disp(long long state)
 {
@@ -181,7 +186,7 @@ int heuristic(long long state, long long pastState, char player)
             break;
         }
     }
-    
+
     // update row and column to match the garded matrix 
     row += 3;
     column += 3;
@@ -198,7 +203,6 @@ int heuristic(long long state, long long pastState, char player)
                 guardedArr[j][i] = -1;
         }
     }
-
     int p1, p2, p3, p4, p5, p6, p7, p8, p9;
     pair<char, char> i1, i2, i3, i4, i5;
 // ***************************************************************
@@ -362,8 +366,6 @@ int heuristic(long long state, long long pastState, char player)
                 p4 = guardedArr[i4.first--][i4.second++];
                 p5 = guardedArr[i5.first--][i5.second++];
             }
-            // cout << "t1 = " << t1 <<" p1 = " << p1 << " p2 = " << p2 << " p3 = " << p3 << " p4 = " << p4 << " p5 = " << p5 << " t2 = " << t2 <<endl;
-
 
             if((player == p2) && (p2 == p3) && (p3 == p4))
                 if((p1 != -1 && p5 != -1) && (p1 == 0 && p5 == 0))
@@ -580,7 +582,6 @@ int heuristic(long long state, long long pastState, char player)
     }
     row = rowTemp;
     column = columnTemp;
-
     if(lastR[6 - (column-3)] > 3)
     {
         p1 = guardedArr[row-1][column];
@@ -739,34 +740,36 @@ int heuristic(long long state, long long pastState, char player)
 // ***************************************************************
 // ********************** start Feature 4 win ********************
 // ***************************************************************
-    p1 = guardedArr[row+1][column];
-    p2 = guardedArr[row-1][column];
-    p3 = guardedArr[row][column+1];
-    p4 = guardedArr[row][column-1];
-    p5 = guardedArr[row-1][column-1];
-    p6 = guardedArr[row+1][column+1];
-    p7 = guardedArr[row+1][column-1];
-    p8 = guardedArr[row-1][column+1];
-    p9 = guardedArr[row][column];
-    if((p1 != p9) && (p2 != p9) && (p3 != p9) && (p4 != p9) && (p5 != p9) && (p6 != p9) && (p7 != p9) && (p8 != p9))
-    {
-        column -= 3;
-        if(column == 3)
-            (player == 1) ? (score += 200) : (score -= 200);
-        else if(column == 0 || column == 6)
-            (player == 1) ? (score += 40) : (score -= 40);
-        else if(column == 1 || column == 5)
-            (player == 1) ? (score += 70) : (score -=70);
-        else
-            (player == 1) ? (score += 120) : (score -= 120);
-        column += 3;
-    }
+    column -= 3;
+    short int scoreMat[6][7]= {
+        {3, 4, 5, 7, 5, 4, 3},
+        {4, 6, 8, 10, 8, 6, 4},
+        {5, 8, 11, 13, 11,  8, 5 },
+        {5, 8, 11, 13, 11,  8, 5 },
+        {4, 6, 8 , 10, 8 , 6 ,4 },
+        {3, 4, 5 , 7 , 5 , 4 ,3 }
+    };
+
+    if(column == 3)
+        (player == 1) ? (score += 200) : (score -= 200);
+    else if(column == 0 || column == 6)
+        (player == 1) ? (score += 40) : (score -= 40);
+    else if(column == 1 || column == 5)
+        (player == 1) ? (score += 70) : (score -=70);
+    else
+        (player == 1) ? (score += 120) : (score -= 120);
+
+    (player == 1) ? (score += scoreMat[row - 3][column]) : (score -= scoreMat[row - 3][column]);
+    
+    column += 3;
 // ***************************************************************
 // ************************ end Feature 4 win ********************
 // ***************************************************************
+    return score;
+
     
-    return score;  
 }
+
 
 int calcWinner(long long state)
 {
@@ -972,14 +975,18 @@ long long convertToBits()
                 last = j;
             }
         }
+        // cout << "last = " << (int)last << endl;
         col = (last << 6) | col;
+        // cout << "col = " << col << endl;
         result = ((long long)col << i*9) | result;
+        // cout << "reult = " << result<< endl;
     }
     
     return result;
 
 
 }
+
 
 pair<long long,long long> minimax(long long state, long long pastState, int depth, long long alpha, long long beta, bool maximizingPlayer, int emptySlots, int origDepth)
 {
@@ -995,6 +1002,7 @@ pair<long long,long long> minimax(long long state, long long pastState, int dept
         long long chosenAction;
         for(auto neighbor : neighbors)
         {
+            tot++;
             eval = minimax(neighbor, state, depth - 1, alpha, beta, false, emptySlots - 1, depth);
             if(eval.first >= maxEval.first)
                 chosenAction = neighbor;
@@ -1002,10 +1010,17 @@ pair<long long,long long> minimax(long long state, long long pastState, int dept
 
             alpha = max(alpha, eval.first);
 
-            
+            nodes[state].push_back({neighbor, eval.first});
+
             if(beta <= alpha)
                 break;
         }
+        get<0>(tree[state]) = alpha;
+        get<1>(tree[state]) = beta;
+        get<2>(tree[state]) = maxEval.first;
+        get<3>(tree[state]) = chosenAction;
+        get<4>(tree[state]) = nodes;
+
         policyMap[state] = chosenAction;
         return maxEval;
     }
@@ -1017,26 +1032,35 @@ pair<long long,long long> minimax(long long state, long long pastState, int dept
         long long chosenAction;
         for(auto neighbor : neighbors)
         {
+            tot++;
             eval = minimax(neighbor, state, depth - 1, alpha, beta, true, emptySlots - 1, depth);
             if(eval.first <= minEval.first)
                 chosenAction = neighbor;
             
             minEval = (minEval.first < eval.first) ? minEval : eval;
-            
             beta = min(beta, eval.first);
             
+            nodes[state].push_back({neighbor, eval.first});
             if(beta <= alpha)
                 break;
         }
+
+        get<0>(tree[state]) = alpha;
+        get<1>(tree[state]) = beta;
+        get<2>(tree[state]) = minEval.first;
+        get<3>(tree[state]) = chosenAction;
+        get<4>(tree[state]) = nodes;
         policyMap[state] = chosenAction;
         return minEval;
     }
 }
 
+
 int main()
 {
     long long state = 1152926023834274650, pastState = 1152926023834274570;
-    int depth = 8;
+    root = state;
+    long long depth = 4; // (8 =>> 1069 with alpha beta) (4 =>> 70 with alpha beta)
     pair<long long, long long> ans = minimax(state, pastState, depth, INT_MIN, INT_MAX, 1, 33, depth);
 
     long long er = state;
@@ -1046,6 +1070,47 @@ int main()
         cout << "********************\n";
         er = policyMap[er];
     }
+    cout << tot;
+    string res = "";
+    vector<long long> qu;
+    res += (to_string(root) + ";");
+    res += (to_string(get<0>(tree[root])) + ";");
+    res += (to_string(get<1>(tree[root])) + ";");
+    res += (to_string(get<2>(tree[root])) + ";");
+    res += (to_string(get<3>(tree[root])) + ";");
+    for (auto as : get<4>(tree[root])[root])
+    {
+        qu.push_back(as.first);
+        res += (to_string(as.first) + ";");
+        
+        // cout << "nei = " << as.first << " score = " << as.second << " ";
+    }
+    res += "|";
+    // cout << "\n********************\n";
+    
+    while(!qu.empty())
+    {
+        long long temp = qu[0];
+        res += (to_string(temp) + ";");
+        res += (to_string(get<0>(tree[temp])) + ";");
+        res += (to_string(get<1>(tree[temp])) + ";");
+        res += (to_string(get<2>(tree[temp])) + ";");
+        res += (to_string(get<3>(tree[temp])) + ";");
+        // cout << "**" << temp << "**\n";
+        qu.erase(qu.begin());
+        vector<pair<long long, long long>> ass=  get<4>(tree[temp])[temp];
+        for (auto as : ass)
+        {
+            res += (to_string(as.first) + ";");
+            qu.push_back(as.first);
+            // cout << "nei = " << as.first << " score = " << as.second << " ";
+        }
+        res += "|";
+        // cout << "\n********************\n";
+    }
+
+    cout << res;
+ 
     return 0;
 }
 

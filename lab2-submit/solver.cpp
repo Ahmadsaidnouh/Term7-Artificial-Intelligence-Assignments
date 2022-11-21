@@ -1,94 +1,34 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+#include <string.h>
+#include <string>
+#include <cmath>
+#include <vector>
+#include <unordered_map>
+#include <map>
+#include <set>
+#include <tuple>
+#include <queue>
+#include <stack>
+#include <utility>
+#include <emscripten.h>
+
 
 using namespace std;
 
-long long tot = 0;
 unordered_map<long long, long long> policyMap;
 unordered_map<long long, vector<pair<long long, long long>>> nodes;
 unordered_map<long long, tuple<long long, long long, long long, long long, unordered_map<long long, vector<pair<long long, long long>>>>> tree; // alpha beta score action neighbors
-
 long long root;
 
-void disp(long long state)
-{
-    vector<short int> c(7);
-    vector<char> lastR(7);
-    short int arr[6][7];
-    short int temp;
-    int r;
-    for (int i = 0; i < 7; i++)
-    {
-        temp = (511 & (state >> i*9));
-        c[i] = temp;
-        lastR[i] = (448 & temp) >> 6;
-    }
-    for (int i = 0; i < 7; i++)
-    {
-        for (int j = 0; j < 6; j++)
-        {
-            r = (c[i] >> j) & 1;
-            
-            if(j < lastR[i])
-            {
-                if(r == 0)
-                    arr[j][6-i] = 2;
-                else
-                    arr[j][6-i] = 1;
-            }
-            else
-                arr[j][6-i] = 0;
-
-        }        
-    }
-    
-    for (int i = 5; i >= 0; i--)
-    {
-        for (int j = 0; j < 7; j++)
-        {
-            printf("|%2s",((arr[i][j] == 0) ? " " : ((arr[i][j] == 1) ? "G" : "R")));
-        }
-        cout << "\n";
-    }
-}
-
-void displayState(long long state)
-{    
-    vector<short int> c(7);
-    vector<char> lastR(7);
-    short int temp;
-    for (int i = 0; i < 7; i++)
-    {
-        temp = (511 & (state >> i*9));
-        c[i] = temp;
-        lastR[i] = (448 & temp) >> 6;
-    }
-    for (int i = 0; i < 7; i++)
-    {
-        cout << (i+1) << " <== i\n";
-        for (int j = 0; j < lastR[i]; j++)
-        {
-            int r = (c[i] >> j) & 1;
-
-            if(r == 0)
-            {
-                cout << "red ";
-            }
-            else
-            {
-                cout << "green ";
-            }
-
-        }
-        cout << "\n";
-        
-    }
-}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start utility functions////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// returns all possible neighbors of a state
 vector<long long> getNeighbors(long long state, bool player)
 {
-    // 0 ==> red
-    // 1 ==> green
-    
+    // player = 0 ==> red
+    // player = 1 ==> green
     vector<short int> c(7);
     vector<char> lastR(7);
     short int temp;
@@ -133,9 +73,120 @@ vector<long long> getNeighbors(long long state, bool player)
     }
 
     return neighbors;
-
 }
 
+// stringifies the result so that we can pass it to javascript
+string stringify(long long state, int algorithmType)
+{
+    long long pastTemp = state;
+    long long newTemp = policyMap[state];
+    char c1, c2;
+    short int row, column;
+    for (int i = 0; i < 7; i++)
+    {
+        // to get the row and column of the new inserted block
+        c1 = ((newTemp >> i*9) & 511) >> 6;
+        c2 = ((pastTemp >> i*9) & 511) >> 6;
+        if(c1 != c2)
+        {
+            row = c2;
+            column = 6 - i;
+            break;
+        }
+    }
+
+    long long root = state;
+    long long er = state;
+
+    string res = "";
+    res += (to_string(row) + "," + to_string(column) + "|");
+    vector<long long> qu;
+    res += (to_string(root) + ";");
+    if(algorithmType != 1) // with alpha beta
+    {
+        res += (to_string(get<0>(tree[root])) + ";");
+        res += (to_string(get<1>(tree[root])) + ";");
+    }
+    res += (to_string(get<2>(tree[root])) + ";");
+    res += (to_string(get<3>(tree[root])) + ";");
+    for (auto as : get<4>(tree[root])[root])
+    {
+        qu.push_back(as.first);
+        res += (to_string(as.first) + ";");
+    }
+    res += "|";
+    
+    while(!qu.empty())
+    {
+        long long temp = qu[0];
+        res += (to_string(temp) + ";");
+        if(algorithmType != 1) // with alpha beta
+        {
+            res += (to_string(get<0>(tree[temp])) + ";");
+            res += (to_string(get<1>(tree[temp])) + ";");
+        }
+        res += (to_string(get<2>(tree[temp])) + ";");
+        res += (to_string(get<3>(tree[temp])) + ";");
+        qu.erase(qu.begin());
+        vector<pair<long long, long long>> ass=  get<4>(tree[temp])[temp];
+        for (auto as : ass)
+        {
+            res += (to_string(as.first) + ";");
+            qu.push_back(as.first);
+        }
+        res += "|";
+    }
+    return res;
+}
+
+// takes state as a string and returns a long long integer representing that string state. 
+// This is much efficient
+long long convertToBits(string state)
+{
+    short int c, b;
+    bool first;
+    char last;
+    short int col;
+    long long result = 0;
+
+    int m = state.size() - 1;
+    for (int i = 0; i < 7; i++)
+    {
+        first = true;
+        last = 6;
+        col = 0;
+        for (int j = 0; j < 6; j++)
+        {
+            c = state[m--] - 48;
+            if(c == 1)
+                b = 1;
+            else
+                b = 0;
+                
+            col = (b << j) | col;
+            if(first && c == 2)
+            {
+                first = false;
+                last = j;
+            }
+        }
+        col = (last << 6) | col;
+        result = ((long long)col << i*9) | result;
+    }
+    
+    return result;
+
+
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end utility functions//////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// 
+// 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start solving functions////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int heuristic(long long state, long long pastState, char player)
 {
     // player = 1 ==> green
@@ -590,10 +641,35 @@ int heuristic(long long state, long long pastState, char player)
         if((opponent == p1) && (p1 == p2) && (p2 == p3))
                 return (player == 1) ? INT_MAX : INT_MIN;
     }
+    // *******************************
+    p1 = guardedArr[row-1][column];
+    p2 = guardedArr[row-2][column];
+    p3 = guardedArr[row-3][column];
+    if((opponent == p1) && (p1 == p2) && (p2 == p3))
+            return (player == 1) ? INT_MAX : INT_MIN;
+    p1 = guardedArr[row+1][column+1];
+    p2 = guardedArr[row+2][column+2];
+    p3 = guardedArr[row+3][column+3];
+    if((opponent == p1) && (p1 == p2) && (p2 == p3))
+            return (player == 1) ? INT_MAX : INT_MIN;
+    p1 = guardedArr[row-1][column-1];
+    p2 = guardedArr[row-2][column-2];
+    p3 = guardedArr[row-3][column-3];
+    if((opponent == p1) && (p1 == p2) && (p2 == p3))
+            return (player == 1) ? INT_MAX : INT_MIN;
+    p1 = guardedArr[row+1][column-1];
+    p2 = guardedArr[row+2][column-2];
+    p3 = guardedArr[row+3][column-3];
+    if((opponent == p1) && (p1 == p2) && (p2 == p3))
+            return (player == 1) ? INT_MAX : INT_MIN;
+    p1 = guardedArr[row-1][column+1];
+    p2 = guardedArr[row-2][column+2];
+    p3 = guardedArr[row-3][column+3];
+    if((opponent == p1) && (p1 == p2) && (p2 == p3))
+            return (player == 1) ? INT_MAX : INT_MIN;
 // ***************************************************************
 // ********************** end Feature 2 lose *********************
 // ***************************************************************
-
     long long score = 0;
 // ***************************************************************
 // ********************** start Feature 2 win 900000 *************
@@ -765,245 +841,30 @@ int heuristic(long long state, long long pastState, char player)
 // ***************************************************************
 // ************************ end Feature 4 win ********************
 // ***************************************************************
-    return score;
-
-    
+    return score;  
 }
 
-
-int calcWinner(long long state)
+pair<long long,long long> minimaxAB(long long state, long long pastState, int depth, long long alpha, long long beta, bool maximizingPlayer, int emptySlots)
 {
-    vector<short int> c(7);
-    vector<char> lastR(7);
-    short int temp;
-    int arr[6][7];
-    for (int i = 0; i < 7; i++)
-    {
-        temp = (511 & (state >> i*9));
-        c[i] = temp;
-        lastR[i] = (448 & temp) >> 6;
-    }
-    for (int i = 0; i < 7; i++)
-    {
-        cout << (i+1) << " <== i\n";
-        for (int j = 0; j < 6; j++)
-        {
-            int r = (c[i] >> j) & 1;
-            if(j < lastR[i])
-            {
-                if(r == 0)
-                {
-                    cout << "red ";
-                    arr[j][6-i] = 2;
-
-                }
-                else
-                {
-                    cout << "green ";
-                    arr[j][6-i] = 1;
-                }
-
-            }
-            else
-            {
-                cout << "---- ";
-                arr[j][6-i] = 0;
-
-            }
-
-        }
-        cout << "\n";
-        
-    }
-
-
-    int p1, p2, p3, p4;
-    // ***************************************************************
-    // ********************** start Feature 1 ************************
-    // ***************************************************************
-    // check horizontal
-    for (int j = 0; j < lastR[j]; j++)
-    {
-        if(arr[j][3] == 0)
-            continue;
-
-        for (int i = 0; i < 7; i++)
-        {
-            p1 = arr[j][i];
-            p2 = arr[j][i + 1];
-            p3 = arr[j][i + 2];
-            p4 = arr[j][i + 3];
-            if( p1 == p2 && p2 == p3 && p3 == p4)
-                return INT_MAX;
-        }
-    }
-    // check vertical
-    for (int i = 0; i < 7; i++)
-    {
-        if(lastR[i] <= 3)
-            continue;
-        for (int j = 0; j < 6; j++)
-        {
-            p1 = arr[j][i];
-            p2 = arr[j+1][i];
-            p3 = arr[j+2][i];
-            p4 = arr[j+3][i];
-            if( p1 == p2 && p2 == p3 && p3 == p4)
-                return INT_MAX;
-        }   
-    }
-    // check right diagonal
-    for (int j = 0; j < 3; j++)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            p1 = arr[j][i];
-            p2 = arr[j+1][i+1];
-            p3 = arr[j+2][i+2];
-            p4 = arr[j+3][i+3];
-            if( p1 == p2 && p2 == p3 && p3 == p4)
-                return INT_MAX;
-        }       
-    }
-    // check left diagonal
-    for (int j = 0; j < 3; j++)
-    {
-        for (int i = 6; i > 2; i--)
-        {
-            p1 = arr[j][i];
-            p2 = arr[j+1][i-1];
-            p3 = arr[j+2][i-2];
-            p4 = arr[j+3][i-3];
-            if( p1 == p2 && p2 == p3 && p3 == p4)
-                return INT_MAX;
-        }       
-    }
-    // ***************************************************************
-    // ************************ end Feature 1 ************************
-    // ***************************************************************
-    
-    
-
-    // cout << "wrf\n";
-    
-    // bool set = false;
-    
-    // vector<short int> c(7);
-    // vector<char> lastR(7);
-    // short int temp;
-    // cout << "defww\n";
-    // for (int i = 0; i < 7; i++)
-    // {
-    //     temp = (511 & (state >> i*9));
-    //     c[i] = temp;
-    //     lastR[i] = (448 & temp) >> 6;
-    //     cout << c[i] << " " << (int)lastR[i] << endl;
-    // }
-    // cout << "defwew\n";
-
-    // char arr[6][7];
-    // short int r ;
-    // for (int i = 6; i >= 0; i--)
-    // {
-    //     // r = c[i];
-
-    //     cout << "in " << c[i] << endl ;
-    //     for (int j = 0; j < 6; j++)
-    //     {
-    //         r = (c[i] >> j) & 1;
-    //         cout << "inIn " << (r);
-    //         if(j < lastR[i])
-    //         {
-    //             cout << " ca1";
-    //             arr[j][i] = (r) ? 1 : 2;
-    //         }
-    //         else
-    //         {
-    //             cout << " ca2";
-    //             arr[j][i] = 3;
-    //         }
-    //         // r = r >> 1;
-    //         cout << "\n";
-
-    //     }
-    // }
-    // cout << "defwwdsf\n";
-
-    for (int i = 5; i >= 0; i--)
-    {
-        for (int j = 0; j < 7; j++)
-        {
-            cout << "| " << arr[i][j];
-        }
-        cout << "\n";
-    }
-    
-    // cout << "d\n";
-
-
-    return 12;
-
-    
-}
-
-long long convertToBits()
-{
-    short int c, b;
-    bool first;
-    char last;
-    short int col;
-    long long result = 0;
-
-    for (int i = 0; i < 7; i++)
-    {
-        first = true;
-        last = 6;
-        col = 0;
-        for (int j = 0; j < 6; j++)
-        {
-            // cout << "c = ";
-            cin >> c;
-            if(c == 1)
-                b = 1;
-            else
-                b = 0;
-                
-            col = (b << j) | col;
-            if(first && c == 2)
-            {
-                first = false;
-                last = j;
-            }
-        }
-        // cout << "last = " << (int)last << endl;
-        col = (last << 6) | col;
-        // cout << "col = " << col << endl;
-        result = ((long long)col << i*9) | result;
-        // cout << "reult = " << result<< endl;
-    }
-    
-    return result;
-
-
-}
-
-
-pair<long long,long long> minimax(long long state, long long pastState, int depth, long long alpha, long long beta, bool maximizingPlayer, int emptySlots, int origDepth)
-{
-    char player = maximizingPlayer ? 1 : 2;
+    char player = maximizingPlayer ? 2 : 1;
     if (depth == 0 || emptySlots == 0) // or game is over in position
-        return {heuristic(state, pastState, player), state};
+    {
+        long long score = heuristic(state, pastState, player);
+        get<0>(tree[state]) = alpha;
+        get<1>(tree[state]) = beta;
+        get<2>(tree[state]) = score;
+        return {score, state};
+    }
 
     if (maximizingPlayer)
     {
-        pair<long long, long long> maxEval, eval; // score, state;
+        pair<long long, long long> maxEval, eval; // pair carries score, state;
         maxEval.first = INT_MIN;
         vector<long long> neighbors = getNeighbors(state, player);
         long long chosenAction;
         for(auto neighbor : neighbors)
         {
-            tot++;
-            eval = minimax(neighbor, state, depth - 1, alpha, beta, false, emptySlots - 1, depth);
+            eval = minimaxAB(neighbor, state, depth - 1, alpha, beta, false, emptySlots - 1);
             if(eval.first >= maxEval.first)
                 chosenAction = neighbor;
             maxEval = (maxEval.first > eval.first) ? maxEval : eval;
@@ -1032,8 +893,7 @@ pair<long long,long long> minimax(long long state, long long pastState, int dept
         long long chosenAction;
         for(auto neighbor : neighbors)
         {
-            tot++;
-            eval = minimax(neighbor, state, depth - 1, alpha, beta, true, emptySlots - 1, depth);
+            eval = minimaxAB(neighbor, state, depth - 1, alpha, beta, true, emptySlots - 1);
             if(eval.first <= minEval.first)
                 chosenAction = neighbor;
             
@@ -1055,62 +915,158 @@ pair<long long,long long> minimax(long long state, long long pastState, int dept
     }
 }
 
-
-int main()
+pair<long long,long long> minimax(long long state, long long pastState, int depth, bool maximizingPlayer, int emptySlots)
 {
-    long long state = 1152926023834274650, pastState = 1152926023834274570;
-    root = state;
-    long long depth = 4; // (8 =>> 1069 with alpha beta) (4 =>> 70 with alpha beta)
-    pair<long long, long long> ans = minimax(state, pastState, depth, INT_MIN, INT_MAX, 1, 33, depth);
-
-    long long er = state;
-    for (int i = 0; i < depth; i++)
+    char player = maximizingPlayer ? 2 : 1;
+    if (depth == 0 || emptySlots == 0) // or game is over in position
     {
-        disp(er);
-        cout << "********************\n";
-        er = policyMap[er];
+        long long score = heuristic(state, pastState, player);
+        get<2>(tree[state]) = score;
+        get<3>(tree[state]) = state;
+        return {score, state};
     }
-    cout << tot;
-    string res = "";
-    vector<long long> qu;
-    res += (to_string(root) + ";");
-    res += (to_string(get<0>(tree[root])) + ";");
-    res += (to_string(get<1>(tree[root])) + ";");
-    res += (to_string(get<2>(tree[root])) + ";");
-    res += (to_string(get<3>(tree[root])) + ";");
-    for (auto as : get<4>(tree[root])[root])
+    if (maximizingPlayer)
     {
-        qu.push_back(as.first);
-        res += (to_string(as.first) + ";");
-        
-        // cout << "nei = " << as.first << " score = " << as.second << " ";
-    }
-    res += "|";
-    // cout << "\n********************\n";
-    
-    while(!qu.empty())
-    {
-        long long temp = qu[0];
-        res += (to_string(temp) + ";");
-        res += (to_string(get<0>(tree[temp])) + ";");
-        res += (to_string(get<1>(tree[temp])) + ";");
-        res += (to_string(get<2>(tree[temp])) + ";");
-        res += (to_string(get<3>(tree[temp])) + ";");
-        // cout << "**" << temp << "**\n";
-        qu.erase(qu.begin());
-        vector<pair<long long, long long>> ass=  get<4>(tree[temp])[temp];
-        for (auto as : ass)
+        pair<long long, long long> maxEval, eval; // score, state;
+        maxEval.first = INT_MIN;
+        vector<long long> neighbors = getNeighbors(state, player);
+        long long chosenAction;
+        maxEval.first = INT_MIN;
+        for(auto neighbor : neighbors)
         {
-            res += (to_string(as.first) + ";");
-            qu.push_back(as.first);
-            // cout << "nei = " << as.first << " score = " << as.second << " ";
+            eval = minimax(neighbor, state, depth - 1, false, emptySlots - 1);
+            if(eval.first >= maxEval.first)
+                chosenAction = neighbor;
+            maxEval = (maxEval.first > eval.first) ? maxEval : eval;
+
+            nodes[state].push_back({neighbor, eval.first});
         }
-        res += "|";
-        // cout << "\n********************\n";
+        get<2>(tree[state]) = maxEval.first;
+        get<3>(tree[state]) = chosenAction;
+        get<4>(tree[state]) = nodes;
+
+        policyMap[state] = chosenAction;
+        return maxEval;
     }
+    else
+    {
+        pair<long long, long long> minEval, eval; // score, state;
+        minEval.first = INT_MAX;
+        vector<long long> neighbors = getNeighbors(state, !player);
+        long long chosenAction;
+        minEval.first = INT_MAX;
+        for(auto neighbor : neighbors)
+        {
+            eval = minimax(neighbor, state, depth - 1, true, emptySlots - 1);
+            if(eval.first <= minEval.first)
+                chosenAction = neighbor;
+            minEval = (minEval.first < eval.first) ? minEval : eval;
+            
+            nodes[state].push_back({neighbor, eval.first});
+        }
 
-    cout << res;
- 
-    return 0;
+        get<2>(tree[state]) = minEval.first;
+        get<3>(tree[state]) = chosenAction;
+        get<4>(tree[state]) = nodes;
+        policyMap[state] = chosenAction;
+        return minEval;
+    }
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end solving functions//////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// 
+// 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// start main driver code/////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+extern "C"
+{
+    EMSCRIPTEN_KEEPALIVE
+    void solve(int stat1,int stat2,int stat3,int stat4,int stat5, int pastStat1, int pastStat2, int pastStat3, int pastStat4,int pastStat5, int algorithmType, int depth, int emptySlots)
+    {
+        string result = "";
 
+        // each state is send in five parts. So we have to reconstruct it.
+        // start reconstruction of (state)
+        string str = "";
+        string s1 = to_string(stat1);
+        while(s1.size() < 6)
+        {
+            s1 = "0" + s1;
+        }
+        string s2 = to_string(stat2);
+        while(s2.size() < 9)
+        {
+            s2 = "0" + s2;
+        }
+        string s3 = to_string(stat3);
+        while(s3.size() < 9)
+        {
+            s3 = "0" + s3;
+        }
+        string s4 = to_string(stat4);
+        while(s4.size() < 9)
+        {
+            s4 = "0" + s4;
+        }
+        string s5 = to_string(stat5);
+        while(s5.size() < 9)
+        {
+            s5 = "0" + s5;
+        }
+        str = s1 + s2 + s3 + s4 + s5;
+        long long state = convertToBits(str);
+        // end reconstruction of (state)
+        // ***********************
+        // start reconstruction of (pastState)
+        s1 = to_string(pastStat1);
+        while(s1.size() < 14)
+        {
+            s1 = "0" + s1;
+        }
+        s2 = to_string(pastStat2);
+        while(s2.size() < 14)
+        {
+            s2 = "0" + s2;
+        }
+        s3 = to_string(pastStat3);
+        while(s3.size() < 14)
+        {
+            s3 = "0" + s3;
+        }
+        s4 = to_string(pastStat4);
+        while(s4.size() < 9)
+        {
+            s4 = "0" + s4;
+        }
+        s5 = to_string(pastStat5);
+        while(s5.size() < 9)
+        {
+            s5 = "0" + s5;
+        }
+        str = s1 + s2 + s3 + s4 + s5;
+        long long pastState = convertToBits(str);
+        // end reconstruction of (pastState)
+        
+        if (algorithmType == 1)
+        {
+            minimax(state, pastState, depth, 1, emptySlots);
+            result = stringify(state, algorithmType);
+        }
+        else
+        {
+            minimaxAB(state, pastState, depth, INT_MIN, INT_MAX, 1, emptySlots);
+            result = stringify(state, algorithmType);
+        }
+
+        // result is ready to be send to javascript
+        string script = "SolutionPanel('" + result + "')";
+        const char *Schar = script.c_str();
+        emscripten_run_script(Schar);
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// end main driver code///////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////

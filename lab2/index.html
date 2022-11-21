@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8 Puzzle Solver</title>
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="solver.js"></script>
+</head>
+
+<body class="">
+    <div class="background pt-4 d-flex flex-column justify-content-center align-items-center">
+        <h1 class="text-white text-center my-4">Connect 4</h1>
+        <section class=" main p-4 d-flex flex-column justify-content-center align-items-start">
+            <section id="puzzleSection" class="w-100 d-flex justify-content-center">
+                <div id="puzzle" class="text-white  bg-inf p-2 position-relative ">
+                    <table class=" h-100 w-100">
+                        <tbody class="d-flex w-100 flex-column justify-content-between h-100">
+
+
+                            <tr class="d-flex justify-content-between">
+                                <td id="slot50" class="slot invalid"></td>
+                                <td id="slot51" class="slot invalid"></td>
+                                <td id="slot52" class="slot invalid"></td>
+                                <td id="slot53" class="slot invalid"></td>
+                                <td id="slot54" class="slot invalid"></td>
+                                <td id="slot55" class="slot invalid"></td>
+                                <td id="slot56" class="slot invalid"></td>
+                            </tr>
+                            <tr class=" d-flex justify-content-between">
+                                <td id="slot40" class="slot invalid"></td>
+                                <td id="slot41" class="slot invalid"></td>
+                                <td id="slot42" class="slot invalid"></td>
+                                <td id="slot43" class="slot invalid"></td>
+                                <td id="slot44" class="slot invalid"></td>
+                                <td id="slot45" class="slot invalid"></td>
+                                <td id="slot46" class="slot invalid"></td>
+                            </tr>
+                            <tr class=" d-flex justify-content-between">
+                                <td id="slot30" class="slot invalid"></td>
+                                <td id="slot31" class="slot invalid"></td>
+                                <td id="slot32" class="slot invalid"></td>
+                                <td id="slot33" class="slot invalid"></td>
+                                <td id="slot34" class="slot invalid"></td>
+                                <td id="slot35" class="slot invalid"></td>
+                                <td id="slot36" class="slot invalid"></td>
+                            </tr>
+                            <tr class=" d-flex justify-content-between">
+                                <td id="slot20" class="slot invalid"></td>
+                                <td id="slot21" class="slot invalid"></td>
+                                <td id="slot22" class="slot invalid"></td>
+                                <td id="slot23" class="slot invalid"></td>
+                                <td id="slot24" class="slot invalid"></td>
+                                <td id="slot25" class="slot invalid"></td>
+                                <td id="slot26" class="slot invalid"></td>
+                            </tr>
+                            <tr class=" d-flex justify-content-between">
+                                <td id="slot10" class="slot invalid"></td>
+                                <td id="slot11" class="slot invalid"></td>
+                                <td id="slot12" class="slot invalid"></td>
+                                <td id="slot13" class="slot invalid"></td>
+                                <td id="slot14" class="slot invalid"></td>
+                                <td id="slot15" class="slot invalid"></td>
+                                <td id="slot16" class="slot invalid"></td>
+                            </tr>
+                            <tr class=" d-flex justify-content-between">
+                                <td id="slot00" class="slot"></td>
+                                <td id="slot01" class="slot"></td>
+                                <td id="slot02" class="slot"></td>
+                                <td id="slot03" class="slot"></td>
+                                <td id="slot04" class="slot"></td>
+                                <td id="slot05" class="slot"></td>
+                                <td id="slot06" class="slot"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section class="mt-4 w-100 bg- d-flex flex-column">
+                <div id="message" class="d-none form-group mb-4 text-center fs-3 fw-bold"style="border-radius:10px; background-color: rgb(0, 255, 179);">
+                       
+                </div>
+                <div class="form-group mb-4">
+                    <label for="depth">Depth: </label>
+                    <input type="text" name="depth" id="depthIp" class="form-control"
+                        placeholder="ex: 4 must be positive integer" />
+                    <div class="d-none mt-1 alert alert-danger p-2">Depth is required.</div>
+                </div>
+                <div class="form-group mb-4">
+                    <select class="form-select" id="algorithmType">
+                        <option  selected value="0">Select algorithm first</option>
+                        <option  value="1">MinMax without pruning</option>
+                        <option  value="2">MinMax with pruning</option>
+                    </select>
+                    <div class="d-none mt-1 alert alert-danger p-2">Must select an algorithm.</div>
+                </div>
+            </section>
+            <section class="tree__container ">
+                <section class="tree">
+                    <div id="root" class="node node--root">
+                        <!-- <div class="node__element">Main</div>
+                            <div class="node__bottom-line"></div>
+                            <div class="node__children">
+                                <div class="node">
+                                    <div class="node__element">left child</div>
+                                </div>
+                                <div class="node">
+                                    <div class="node__element">right child</div>
+                                </div>
+                            </div> -->
+                        </div>
+                    </section>
+                </section>
+        </section>
+
+
+    </div>
+
+
+    <script src="./js/jquery-3.6.1.min.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/script.js"></script>
+    <!-- <script src="./js/graph.js"></script> -->
+</body>
+
+</html>

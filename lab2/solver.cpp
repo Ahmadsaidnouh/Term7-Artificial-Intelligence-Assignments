@@ -2173,10 +2173,11 @@ int heuristic(long long state, long long pastState, char player)
 }
 
 // pair<long long,long long> minimaxAB(long long state, long long pastState, int depth, long long alpha, long long beta, bool maximizingPlayer, int emptySlots, int oriDepth)
-long long minimaxAB(long long state, long long pastState, int depth, long long alpha, long long beta, bool maximizingPlayer, int emptySlots)
+pair<long long,int> minimaxAB(long long state, long long pastState, int depth, long long alpha, long long beta, bool maximizingPlayer, int emptySlots)
 {
     // char player = maximizingPlayer ? 1 : 2;
     char player = maximizingPlayer ? 2 : 1;
+    char opponent = maximizingPlayer ? 1 : 2;
     if (depth == 0 || emptySlots == 0) // or game is over in position
     {
         long long score = heuristic(state, pastState, player);
@@ -2184,13 +2185,14 @@ long long minimaxAB(long long state, long long pastState, int depth, long long a
         get<0>(tree[state]) = alpha;
         get<1>(tree[state]) = beta;
         get<2>(tree[state]) = score;
-        return score;
+        return {score, depth};
     }
 
     if (maximizingPlayer)
     {
-        long long maxEval, eval; // pair carries score, state;
-        maxEval = INT64_MIN;
+        pair<long long,int> maxEval, eval; // pair carries score, state;
+        maxEval.first = INT64_MIN;
+        maxEval.second = 0;
         vector<long long> neighbors = getNeighbors(state, player);
         long long chosenAction;
         for(auto neighbor : neighbors)
@@ -2214,22 +2216,22 @@ long long minimaxAB(long long state, long long pastState, int depth, long long a
             // ******************************
             eval = minimaxAB(neighbor, state, depth - 1, alpha, beta, false, emptySlots - 1);
             
-            long long tempScore = heuristic(neighbor, state, player);
-            long long score = tempScore + eval;
-            eval = score;
-            if(eval > maxEval)
+            // long long tempScore = heuristic(neighbor, state, player);
+            // long long score = tempScore + eval;
+            // eval = score;
+            if(eval.first > maxEval.first && (eval.second >= maxEval.second))
             {
                 chosenAction = neighbor;
                 maxEval = eval;
             }
 
-            alpha = max(alpha, eval);
+            alpha = max(alpha, eval.first);
             // eval = tt;
             
             // maxEval = (maxEval > eval) ? maxEval : eval;
 
 
-            nodes[state].push_back({neighbor, eval});
+            nodes[state].push_back({neighbor, eval.first});
 
             if(beta <= alpha)
                 break;
@@ -2255,7 +2257,7 @@ long long minimaxAB(long long state, long long pastState, int depth, long long a
         }
         get<0>(tree[state]) = alpha;
         get<1>(tree[state]) = beta;
-        get<2>(tree[state]) = maxEval;
+        get<2>(tree[state]) = maxEval.first;
         get<3>(tree[state]) = chosenAction;
         get<4>(tree[state]) = nodes;
 
@@ -2264,26 +2266,27 @@ long long minimaxAB(long long state, long long pastState, int depth, long long a
     }
     else
     {
-        long long minEval, eval; // score, state;
-        minEval = INT64_MAX;
+        pair<long long,int> minEval, eval; // score, state;
+        minEval.first = INT64_MAX;
+        minEval.second = 0;
         vector<long long> neighbors = getNeighbors(state, !player);
         long long chosenAction;
         for(auto neighbor : neighbors)
         {
             eval = minimaxAB(neighbor, state, depth - 1, alpha, beta, true, emptySlots - 1);
-            // eval = -1*eval;
-            long long tempScore = heuristic(neighbor, state, player);
-            long long score = tempScore + eval;
-            eval = score;
+            eval.first = -1*eval.first;
+            // long long tempScore = heuristic(neighbor, state, player);
+            // long long score = tempScore + eval;
+            // eval = score;
             // eval = -1*score;
-            if(eval < minEval)
+            if(eval.first < minEval.first)
             {
                 chosenAction = neighbor;
                 minEval = eval;
             }
-            beta = min(beta, eval);
+            beta = min(beta, -1*eval.first);
             
-            nodes[state].push_back({neighbor, eval});
+            nodes[state].push_back({neighbor, eval.first});
             if(beta <= alpha)
                 break;
             // eval = minimaxAB(neighbor, state, depth - 1, alpha, beta, true, emptySlots - 1);
@@ -2337,10 +2340,10 @@ long long minimaxAB(long long state, long long pastState, int depth, long long a
             // if(beta <= alpha)
             //     break;
         }
-        // minEval = -1*minEval;
+        minEval.first = -1*minEval.first;
         get<0>(tree[state]) = alpha;
         get<1>(tree[state]) = beta;
-        get<2>(tree[state]) = minEval;
+        get<2>(tree[state]) = minEval.first;
         get<3>(tree[state]) = chosenAction;
         get<4>(tree[state]) = nodes;
         policyMap[state] = chosenAction;

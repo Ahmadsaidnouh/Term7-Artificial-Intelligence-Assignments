@@ -2,18 +2,31 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-dataset = pd.read_csv('data/allData.csv')  # read the data
-print(dataset.head(10))  # displays the first 10 elements in our data
-print(dataset.tail(10))  # displays the last 10 elements in out data
+trainingSet = pd.read_csv('data/training.csv')  # read the data
+testingSet = pd.read_csv('data/testing.csv')  # read the data
 
-X = dataset.iloc[:, :-1]  # X contains the features only without the class
-Y = dataset.iloc[:, -1]  # Y contains the class only without the features
+print(trainingSet.tail(5))  # displays the last 5 elements in training data
+print(testingSet.tail(5))  # displays the last 5 elements in testing data
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, shuffle=True, random_state=0)
-print(X_train)
-# print(len(X_train))
-# print(len(X_test))
-# print(len(Y_train))
-# print(len(Y_test))
+X_train = trainingSet.iloc[:, :-1]  # X_train contains the features only without the class
+Y_train = trainingSet.iloc[:, -1]  # Y_train contains the class only without the features
+X_test = testingSet.iloc[:, :-1]  # X_test contains the features only without the class
+Y_test = testingSet.iloc[:, -1]  # Y_test contains the class only without the features
 
-# from sklearn.naive_bayes import GaussianNB
+print(trainingSet.head(5))  # displays the first 5 elements in training data
+print(X_train.head(5))  # displays the features of first 5 elements in training data
+print(Y_train.head(5))  # displays the class of first 5 elements in training data
+
+print(testingSet.head(5))  # displays the first 5 elements in testing data
+print(X_test.head(5))  # displays the features of first 5 elements in testing data
+print(Y_test.head(5))  # displays the class of first 5 elements in testing data
+
+print(len(X_train))
+print(len(X_test))
+print(len(Y_train))
+print(len(Y_test))
+
+# start importing your model from sklearn library
+# then, train your model using X_train and Y_train
+# then, test your model using X_test and Y_test
+# then, find all needed calculations like confusion matrix, precision ... (easily done with a module in sklearn)

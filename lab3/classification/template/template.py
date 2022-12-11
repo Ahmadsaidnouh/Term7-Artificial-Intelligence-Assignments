@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-trainingSet = pd.read_csv('data/training.csv')  # read the data
-testingSet = pd.read_csv('data/testing.csv')  # read the data
+trainingSet = pd.read_csv('../../finalData/training.csv')  # read the data
+testingSet = pd.read_csv('../../finalDataa/testing.csv')  # read the data
 
 print(trainingSet.tail(5))  # displays the last 5 elements in training data
 print(testingSet.tail(5))  # displays the last 5 elements in testing data

@@ -46,7 +46,7 @@ for i in range(0, len(X_train), step):
 #             err = mean_squared_error(y_true, y_pred)
 #             err1 = err1 + err
 #     error.append(err1)
-#     print('k = ', i, 'err = ', err1)
+#     print('n_est = ', i, 'err = ', err1)
 #     print("######################################\n")
 # print(error)
 #
@@ -74,7 +74,7 @@ for i in range(0, len(X_train), step):
 #             err = mean_squared_error(y_true, y_pred)
 #             err1 = err1 + err
 #     error.append(err1)
-#     print('k = ', i, 'err = ', err1)
+#     print('n_est = ', i, 'err = ', err1)
 #     print("######################################\n")
 # print(error)
 #
@@ -101,7 +101,7 @@ for i in range(100, 400, 20):
             err = mean_squared_error(y_true, y_pred)
             err1 = err1 + err
     error.append(err1)
-#     print('k = ', i, 'err = ', err1)
+#     print('n_est = ', i, 'err = ', err1)
 #     print("######################################\n")
 # print(error)
 

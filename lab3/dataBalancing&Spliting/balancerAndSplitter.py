@@ -1,3 +1,4 @@
+import random
 from random import sample
 
 sourceFile = open('data/magic04.data', 'r')
@@ -27,22 +28,32 @@ for ele in hadrons70:
 #############################################################################################
 ##################### Start storing data in files ###########################################
 #############################################################################################
+trainList = gammas70 + hadrons70
+testList = gammas30 + hadrons30
+random.shuffle(trainList)  # training data must be shuffled
+random.shuffle(testList)  # testing data needs to be shuffled
+
 with open('data/allData.data', 'w') as allDataFile:
+    allDataFile.write('fLength,fWidth,fSize,fConc,fConc1,fAsym,fM3Long,fM3Trans,fAlpha,fDist,class\n')
     for line in gammas + hadrons:
         allDataFile.write(line)
 
 with open('data/gamma.data', 'w') as gammaFile:
+    gammaFile.write('fLength,fWidth,fSize,fConc,fConc1,fAsym,fM3Long,fM3Trans,fAlpha,fDist,class\n')
     for line in gammas:
         gammaFile.write(line)
 
 with open('data/hadron.data', 'w') as hadronFile:
+    hadronFile.write('fLength,fWidth,fSize,fConc,fConc1,fAsym,fM3Long,fM3Trans,fAlpha,fDist,class\n')
     for line in hadrons:
         hadronFile.write(line)
 
 with open('data/training.data', 'w') as trainingFile:
-    for line in gammas70 + hadrons70:
+    trainingFile.write('fLength,fWidth,fSize,fConc,fConc1,fAsym,fM3Long,fM3Trans,fAlpha,fDist,class\n')
+    for line in trainList:
         trainingFile.write(line)
 
 with open('data/testing.data', 'w') as testingFile:
-    for line in gammas30 + hadrons30:
+    testingFile.write('fLength,fWidth,fSize,fConc,fConc1,fAsym,fM3Long,fM3Trans,fAlpha,fDist,class\n')
+    for line in testList:
         testingFile.write(line)

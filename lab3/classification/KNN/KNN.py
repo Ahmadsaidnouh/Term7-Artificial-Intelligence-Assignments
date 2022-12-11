@@ -69,9 +69,9 @@ for i in range(1, 60):
             err = mean_squared_error(y_true, y_pred)
             err1 = err1 + err
     error.append(err1)
-#     print('k = ', i, 'err = ', err1)
-#     print("######################################\n")
-# print(error)
+    print('k = ', i, 'err = ', err1)
+    print("######################################\n")
+print(error)
 
 minErr = min(error)
 kth = error.index(minErr) + 1

@@ -1,3 +1,4 @@
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.naive_bayes import GaussianNB
@@ -13,6 +14,11 @@ y_train = trainingSet.iloc[:, -1]  # labels
 # testing data
 x_test = testingSet.iloc[:, :-1]  # features
 y_test = testingSet.iloc[:, -1]  # labels
+
+scaler = StandardScaler()
+scaler.fit(x_train)
+x_train = scaler.transform(x_train)
+x_test = scaler.transform(x_test)
 
 classifier = GaussianNB()
 classifier.fit(x_train, y_train)

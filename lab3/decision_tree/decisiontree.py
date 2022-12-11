@@ -20,7 +20,7 @@ scaler.fit(x_train)
 x_train = scaler.transform(x_train)
 x_test = scaler.transform(x_test)
 
-classifier = tree.DecisionTreeClassifier(criterion='entropy')
+classifier = tree.DecisionTreeClassifier() # default is gini which gives better results
 classifier.fit(x_train, y_train)
 
 y_predicted = classifier.predict(x_test)

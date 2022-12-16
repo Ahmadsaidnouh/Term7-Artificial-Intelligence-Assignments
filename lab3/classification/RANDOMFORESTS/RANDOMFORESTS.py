@@ -1,95 +1,69 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.metrics import classification_report, confusion_matrix, precision_score, recall_score, f1_score, \
+    accuracy_score
 
 trainingSet = pd.read_csv('../../finalData/training.csv')  # read the data
 testingSet = pd.read_csv('../../finalData/testing.csv')  # read the data
 
+# training data
 X_train = trainingSet.iloc[:, :-1]  # X_train contains the features only without the class
 y_train = trainingSet.iloc[:, -1]  # Y_train contains the class only without the features
+
+# testing data
 X_test = testingSet.iloc[:, :-1]  # X_test contains the features only without the class
 y_test = testingSet.iloc[:, -1]  # Y_test contains the class only without the features
 
-scaler = StandardScaler()
+scaler = MinMaxScaler(copy=True, feature_range=(0, 1))
 scaler.fit(X_train)
 X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
-X_Ktrain = []
-y_Ktrain = []
-k = 4
-step = len(X_train) / k
-step = np.ceil(step)
-step = int(step)
-for i in range(0, len(X_train), step):
-    X_Ktrain.append(X_train[i:i + step])
-    y_Ktrain.append(y_train[i:i + step])
-
 # try width range with large step
 #################################################################################################
-# error = []
-# for i in range(1, 1000, 100):
-#     for j in range(1, len(X_Ktrain)):
-#         err1 = 0
-#         for m in range(1, len(X_Ktrain)):
-#             if m == j:
-#                 continue
-#             rnForest = RandomForestClassifier(n_estimators=i)
-#             rnForest.fit(X_Ktrain[m], y_Ktrain[m])
-#             y_true = y_Ktrain[j]
-#             y_pred = rnForest.predict(X_Ktrain[j])
-#             err = mean_squared_error(y_true, y_pred)
-#             err1 = err1 + err
-#     error.append(err1)
-#     print('n_est = ', i, 'err = ', err1)
-#     print("######################################\n")
-# print(error)
-#
-# plt.figure(figsize=(12,8))
-# plt.plot(range(1,1000,100), error, color='red', linestyle='dashed', marker='o',
-#         markerfacecolor='blue', markersize=10)
-# plt.title('Error Rate for N-Estimators Value')
-# plt.xlabel('N-Estimators Value')
-# plt.ylabel('Mean_Squared_Error')
-#################################################################################################
+n_scores = []
+stratifiedKF = StratifiedKFold(n_splits=10)
+for n in range(1, 1000, 100):
+    rnForest = RandomForestClassifier(n_estimators=n)
+    score = cross_val_score(rnForest, X_train, y_train, cv=stratifiedKF, scoring='accuracy')
+    n_scores.append(score.mean())
+    print("N = " + str(n) + " and mean score from 10 folds is " + str(score.mean()))
+
+plt.figure(figsize=(12, 8))
+plt.plot(range(1, 1000, 100), n_scores, color='red', linestyle='dashed', marker='o',
+         markerfacecolor='blue', markersize=10)
+plt.title('Accuracy Rate for N-Estimators Value')
+plt.xlabel('N-Estimators Value')
+plt.ylabel('Accuracy')
+plt.show()
 
 # try smaller range with smaller step
 #################################################################################################
-error = []
-for i in range(1, 300, 20):
-    for j in range(1, len(X_Ktrain)):
-        err1 = 0
-        for m in range(1, len(X_Ktrain)):
-            if m == j:
-                continue
-            rnForest = RandomForestClassifier(n_estimators=i)
-            rnForest.fit(X_Ktrain[m], y_Ktrain[m])
-            y_true = y_Ktrain[j]
-            y_pred = rnForest.predict(X_Ktrain[j])
-            err = mean_squared_error(y_true, y_pred)
-            err1 = err1 + err
-    error.append(err1)
-    print('n_est = ', i, 'err = ', err1)
-    print("######################################\n")
-
-print(error)
+n_scores = []
+stratifiedKF = StratifiedKFold(n_splits=10)
+for n in range(1, 300, 20):
+    rnForest = RandomForestClassifier(n_estimators=n)
+    score = cross_val_score(rnForest, X_train, y_train, cv=stratifiedKF, scoring='accuracy')
+    n_scores.append(score.mean())
+    print("N = " + str(n) + " and mean score from 10 folds is " + str(score.mean()))
 
 plt.figure(figsize=(12, 8))
-plt.plot(range(1, 300, 20), error, color='red', linestyle='dashed', marker='o',
+plt.plot(range(1, 300, 20), n_scores, color='red', linestyle='dashed', marker='o',
          markerfacecolor='blue', markersize=10)
-plt.title('Error Rate for N-Estimators Value')
+plt.title('Accuracy Rate for N-Estimators Value')
 plt.xlabel('N-Estimators Value')
-plt.ylabel('Mean_Squared_Error')
+plt.ylabel('Accuracy')
 plt.show()
 
-minErr = min(error)
-min_index = error.index(minErr)
-n_est = 1 + 20 * min_index
-print(n_est, error[min_index])
+maxAcc = max(n_scores)
+max_index = n_scores.index(maxAcc)
+n_est = 1 + 20 * max_index
+print(n_est, n_scores[max_index])
 
 rnForest = RandomForestClassifier(n_estimators=n_est)
 rnForest.fit(X_train, y_train)
@@ -97,4 +71,23 @@ rnForest.fit(X_train, y_train)
 y_pred = rnForest.predict(X_test)
 
 print(classification_report(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
+
+cm = confusion_matrix(y_test, y_pred)
+
+labels = ['h', 'g']
+columns = [f'Predicted {label}' for label in labels]
+index = [f'Actual {label}' for label in labels]
+table = pd.DataFrame(cm, columns=columns, index=index)
+table
+
+acc = accuracy_score(y_test, y_pred)
+prec = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+specificity = cm[0, 0] / (cm[0, 0] + cm[0, 1])
+f1 = f1_score(y_test, y_pred)
+
+print('model_accuracy = ', acc)
+print('model_precision = ', prec)
+print('model_recall = ', recall)
+print('model_specificity = ', specificity)
+print('model_f1 = ', f1)

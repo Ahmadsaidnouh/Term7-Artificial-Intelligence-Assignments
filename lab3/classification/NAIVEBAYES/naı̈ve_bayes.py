@@ -1,8 +1,7 @@
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import classification_report
-from sklearn.naive_bayes import GaussianNB
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import classification_report, confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
 
 trainingSet = pd.read_csv('../../finalData/training.csv')
 testingSet = pd.read_csv('../../finalData/testing.csv')
@@ -15,7 +14,7 @@ y_train = trainingSet.iloc[:, -1]  # labels
 x_test = testingSet.iloc[:, :-1]  # features
 y_test = testingSet.iloc[:, -1]  # labels
 
-scaler = StandardScaler()
+scaler = MinMaxScaler(copy=True, feature_range=(0,1))
 scaler.fit(x_train)
 x_train = scaler.transform(x_train)
 x_test = scaler.transform(x_test)

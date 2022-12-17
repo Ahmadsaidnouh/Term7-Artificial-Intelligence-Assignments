@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.metrics import classification_report, confusion_matrix, precision_score, recall_score, f1_score, \
@@ -20,7 +19,8 @@ X_test = testingSet.iloc[:, :-1]  # X_test contains the features only without th
 y_test = testingSet.iloc[:, -1]  # Y_test contains the class only without the features
 
 scaler = MinMaxScaler(copy=True, feature_range=(0, 1))
-X_train = scaler.fit_transform(X_train)
+scaler.fit(X_train)
+X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
 # try width range with large step
